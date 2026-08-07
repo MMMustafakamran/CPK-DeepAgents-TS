@@ -1,0 +1,22 @@
+# Secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Node
+node_modules/
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# LangGraph dev server state
+.langgraph_api/
+
+# CopilotKit CLI project metadata (contains project ids)
+.copilotkit/
+
+# Editor / OS
+.DS_Store
+*.log

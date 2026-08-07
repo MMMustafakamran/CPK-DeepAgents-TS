@@ -1,0 +1,203 @@
+/**
+ * The nav, the route headers, the status page and the README status table all
+ * read from here, so a doc page and its implementation status are described
+ * exactly once.
+ *
+ * Route paths mirror the doc URLs under docs.copilotkit.ai/deepagents. Every
+ * page here was read in its **TypeScript** tab; the Python variants are the
+ * sibling repo's job.
+ *
+ * `agentId` is the graph id in `backend/langgraph.json` that the route drives;
+ * routes without one are reference-only and have no agent.
+ */
+
+export const DOC_SYNC_DATE = "2026-08-06";
+export const DOCS_ROOT = "https://docs.copilotkit.ai/deepagents";
+
+export type RouteStatus = "working" | "partial" | "reference" | "broken" | "not-started";
+
+export interface RouteMeta {
+  path: string;
+  title: string;
+  /** Path under docs.copilotkit.ai, including any query the page needs. */
+  docPath: string;
+  summary: string;
+  status: RouteStatus;
+  statusNote?: string;
+  /** Present but absent from the doc sidebar as of DOC_SYNC_DATE. */
+  offNav?: boolean;
+  /** Owns a live surface at `<path>/demo-chat`. */
+  hasDemo?: boolean;
+  /** Graph id in backend/langgraph.json, when the route drives one. */
+  agentId?: string;
+  /** Extra graph ids the route's demo can switch between. */
+  extraAgentIds?: string[];
+}
+
+export function demoPath(route: RouteMeta): string | undefined {
+  if (!route.hasDemo) return undefined;
+  return route.path === "/" ? "/demo-chat" : `${route.path}/demo-chat`;
+}
+
+export interface NavGroup {
+  title: string;
+  routes: RouteMeta[];
+}
+
+export const NAV: NavGroup[] = [
+  {
+    title: "Getting Started",
+    routes: [
+      {
+        path: "/",
+        title: "Introduction",
+        docPath: "/deepagents",
+        summary: "What this harness covers and how the pieces fit together.",
+        status: "reference",
+        statusNote: "Landing page — orientation and the live graph roster.",
+      },
+      {
+        path: "/quickstart",
+        hasDemo: true,
+        agentId: "sample_agent",
+        title: "Quickstart",
+        docPath: "/deepagents/quickstart",
+        summary:
+          "createDeepAgent with one TypeScript tool, served by the LangGraph dev server and reached through a CopilotRuntime route.",
+        status: "working",
+      },
+    ],
+  },
+  {
+    title: "Generative UI",
+    routes: [
+      {
+        path: "/generative-ui/tool-rendering",
+        hasDemo: true,
+        agentId: "tool_rendering_agent",
+        title: "Tool Rendering",
+        docPath: "/deepagents/generative-ui/tool-rendering",
+        summary:
+          "A backend tool call rendered as a custom component with useRenderTool, plus useDefaultRenderTool as the catch-all.",
+        status: "working",
+      },
+      {
+        path: "/generative-ui/state-rendering",
+        hasDemo: true,
+        agentId: "state_rendering_agent",
+        title: "State Rendering",
+        docPath: "/deepagents/generative-ui/state-rendering",
+        summary:
+          "A searches list pushed with copilotkitEmitState and read live in the app through useAgent.",
+        status: "working",
+        statusNote:
+          "The page shows the emit loop but not what calls it; the tool wrapper here is written to the shape it describes.",
+      },
+      {
+        path: "/generative-ui/your-components/interrupt-based",
+        hasDemo: true,
+        agentId: "interrupt_agent",
+        extraAgentIds: ["interrupt_multi_agent"],
+        title: "Interrupt-based HITL",
+        docPath: "/deepagents/generative-ui/your-components/interrupt-based",
+        summary:
+          "LangGraph interrupt() inside a createMiddleware beforeModel hook, answered in the browser by useInterrupt.",
+        status: "partial",
+        statusNote:
+          "Single-interrupt tab works. The conditional tab is the page's code verbatim and does not — `enabled` has no `eventValue`.",
+      },
+    ],
+  },
+  {
+    title: "App Control",
+    routes: [
+      {
+        path: "/frontend-tools",
+        hasDemo: true,
+        agentId: "frontend_tools_agent",
+        title: "Frontend Tools",
+        docPath: "/deepagents/frontend-tools",
+        summary:
+          "A tool registered with useFrontendTool that executes in the browser when the agent calls it.",
+        status: "working",
+      },
+    ],
+  },
+  {
+    title: "Shared State",
+    routes: [
+      {
+        path: "/shared-state/in-app-agent-read",
+        hasDemo: true,
+        agentId: "shared_state_agent",
+        title: "Reading agent state",
+        docPath: "/deepagents/shared-state/in-app-agent-read",
+        summary: "Reading the agent's language field in your own UI through useAgent.",
+        status: "working",
+      },
+      {
+        path: "/shared-state/in-app-agent-write",
+        hasDemo: true,
+        agentId: "shared_state_agent",
+        title: "Writing agent state",
+        docPath: "/deepagents/shared-state/in-app-agent-write",
+        summary:
+          "Writing that same field back with agent.setState, then re-running with agent.runAgent.",
+        status: "partial",
+        statusNote:
+          "State round-trips both ways, but the model never sees it: exposeState cannot read a field declared on another middleware.",
+      },
+      {
+        path: "/shared-state/predictive-state-updates",
+        hasDemo: true,
+        agentId: "predictive_state_agent",
+        extraAgentIds: ["predictive_manual_graph", "predictive_tool_graph"],
+        title: "Predictive State Updates",
+        docPath: "/deepagents/shared-state/predictive-state-updates?agent-type=prebuilt",
+        summary:
+          "All three of the page's variants running side by side: the prebuilt middleware, and both custom graphs.",
+        status: "working",
+        statusNote:
+          "All three are live here. The TypeScript tabs print the custom graphs in full, unlike the Python ones.",
+      },
+      {
+        path: "/shared-state/state-inputs-outputs",
+        title: "Input/Output Schemas",
+        docPath: "/deepagents/shared-state/state-inputs-outputs",
+        summary:
+          "Splitting agent state into what the frontend may send, what it gets back, and what stays internal.",
+        status: "reference",
+        statusNote:
+          "Reference only. The page is Python-only, and the JS dev server ignores the output schema, so there is nothing to demonstrate live.",
+      },
+      {
+        path: "/shared-state/workflow-execution",
+        title: "Workflow Execution",
+        docPath: "/deepagents/shared-state/workflow-execution",
+        summary:
+          "Listed separately in the nav, but the page currently serves the Input/Output Schemas content verbatim.",
+        status: "reference",
+        statusNote:
+          "Reference only — the page is an upstream duplicate of Input/Output Schemas, so there is nothing of its own to implement.",
+      },
+    ],
+  },
+];
+
+export const ALL_ROUTES: RouteMeta[] = NAV.flatMap((g) => g.routes);
+
+export function findRoute(path: string): RouteMeta | undefined {
+  return ALL_ROUTES.find((r) => r.path === path);
+}
+
+export function docUrl(route: RouteMeta): string {
+  return `https://docs.copilotkit.ai${route.docPath}`;
+}
+
+export const STATUS_LABEL: Record<RouteStatus, string> = {
+  working: "Working",
+  partial: "Partial",
+  reference: "Reference",
+  broken: "Broken",
+  "not-started": "Not started",
+};

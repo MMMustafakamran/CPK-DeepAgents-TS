@@ -1,0 +1,24 @@
+{
+  "name": "deepagents-ts-harness",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "langgraphjs dev --port 8123 --no-browser",
+    "typecheck": "tsc --noEmit"
+  },
+  "type": "module",
+  "dependencies": {
+    "@copilotkit/sdk-js": "^1.66.2",
+    "@langchain/langgraph": "^1.4.9",
+    "@langchain/openai": "^1.5.6",
+    "deepagents": "^1.12.2",
+    "langchain": "^1.5.5",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@langchain/langgraph-cli": "^1.4.4",
+    "@types/node": "^26.1.2",
+    "tsx": "^4.23.9",
+    "typescript": "^5.9.3"
+  },
+  "private": true
+}

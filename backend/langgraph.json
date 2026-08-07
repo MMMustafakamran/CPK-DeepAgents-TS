@@ -1,0 +1,19 @@
+{
+    "node_version": "20",
+    "dependencies": ["."],
+    "package_manager": "npm",
+    "graphs": {
+        "sample_agent": "./agent.ts:agent",
+        "tool_rendering_agent": "./src/toolRendering.ts:agent",
+        "state_rendering_agent": "./src/stateRendering.ts:agent",
+        "interrupt_agent": "./src/interruptBased.ts:agent",
+        "interrupt_multi_agent": "./src/interruptBased.ts:multiAgent",
+        "frontend_tools_agent": "./src/frontendTools.ts:agent",
+        "shared_state_agent": "./src/sharedState.ts:agent",
+        "predictive_state_agent": "./src/predictiveState.ts:agent",
+        "predictive_manual_graph": "./src/predictiveStateManual.ts:graph",
+        "predictive_tool_graph": "./src/predictiveStateTool.ts:graph",
+        "state_io_graph": "./src/stateInputsOutputs.ts:graph"
+    },
+    "env": ".env"
+}
