@@ -2,8 +2,13 @@ import Link from "next/link";
 
 import { RouteHeader, StatusBadge } from "@/components/route-header";
 import { Callout, KeyValue, Panel } from "@/components/ui";
-import { ALL_ROUTES, DOCS_ROOT, DOC_SYNC_DATE } from "@/lib/nav-config";
+import { ALL_ROUTES, DOCS_ROOT } from "@/lib/nav-config";
 import { GRAPH_IDS, LANGGRAPH_DEPLOYMENT_URL } from "@/lib/agents";
+import { DocSyncedAt } from "@/components/doc-synced-at";
+import { DocDriftPanel } from "@/components/doc-drift-panel";
+
+/** Dynamic: the doc-sync readouts below read the snapshot off disk. */
+export const dynamic = "force-dynamic";
 
 const ROUTES_WITH_AGENTS = ALL_ROUTES.filter((r) => r.agentId);
 
@@ -11,6 +16,9 @@ export default function Page() {
   return (
     <>
       <RouteHeader path="/" />
+
+
+      <DocDriftPanel />
 
       <Panel title="What this is">
         <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
@@ -44,7 +52,7 @@ export default function Page() {
                 </a>,
               ],
               ["Language tab", "TypeScript"],
-              ["Synced", DOC_SYNC_DATE],
+              ["Docs synced", <DocSyncedAt key="docs-synced" withPages />],
               ["Agent server", <code key="u">{LANGGRAPH_DEPLOYMENT_URL}</code>],
               ["Graphs served", `${GRAPH_IDS.length}`],
             ]}

@@ -1,0 +1,268 @@
+{
+  "schema": 1,
+  "docsRoot": "https://docs.copilotkit.ai/deepagents",
+  "syncedAt": "2026-08-17T13:26:18.376Z",
+  "pages": {
+    "/deepagents": {
+      "file": "deepagents.md",
+      "sha256": "d0d82bb3837c8c0f4e8f66746f110a94455cfe9ea5a90e2d85d836a1994069e8",
+      "bytes": 3261,
+      "lines": 55,
+      "routes": [
+        "/",
+        "/doc-sync"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:26:19 GMT"
+    },
+    "/deepagents/frontend-tools": {
+      "file": "deepagents__frontend-tools.md",
+      "sha256": "36b10e715e449f57f61be1a1090f73423a46b8d41007688af40b31c5b144cac6",
+      "bytes": 8571,
+      "lines": 232,
+      "routes": [
+        "/frontend-tools"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:26:19 GMT"
+    },
+    "/deepagents/generative-ui/state-rendering": {
+      "file": "deepagents__generative-ui__state-rendering.md",
+      "sha256": "c443761a743713d847390bfec0c570b55b61d95b25c993a55fca734b632fe087",
+      "bytes": 5846,
+      "lines": 160,
+      "routes": [
+        "/generative-ui/state-rendering"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:26:19 GMT"
+    },
+    "/deepagents/generative-ui/tool-rendering": {
+      "file": "deepagents__generative-ui__tool-rendering.md",
+      "sha256": "becbee9f3e19c5fdc78e6221f8b850c9a59a5f6220c632dce685adcafda5ef3d",
+      "bytes": 5972,
+      "lines": 187,
+      "routes": [
+        "/generative-ui/tool-rendering"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:26:19 GMT"
+    },
+    "/deepagents/generative-ui/your-components/interrupt-based": {
+      "file": "deepagents__generative-ui__your-components__interrupt-based.md",
+      "sha256": "357ef26c857c8345dc94b312083e1f98a3ea9850f9c237283338f0c29b23da18",
+      "bytes": 15904,
+      "lines": 406,
+      "routes": [
+        "/generative-ui/your-components/interrupt-based"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:26:19 GMT"
+    },
+    "/deepagents/quickstart": {
+      "file": "deepagents__quickstart.md",
+      "sha256": "60271eb9038afcc3d7b1e67fc7ed1432be01d48e0cdeab98145f49a43821583e",
+      "bytes": 15397,
+      "lines": 446,
+      "routes": [
+        "/quickstart"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:26:19 GMT"
+    },
+    "/deepagents/shared-state/in-app-agent-read": {
+      "file": "deepagents__shared-state__in-app-agent-read.md",
+      "sha256": "c225fe3ba271ca97577e3ca3854844b6e5a85ad3988c7929f3755667485ddd0f",
+      "bytes": 5579,
+      "lines": 155,
+      "routes": [
+        "/shared-state/in-app-agent-read"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:26:19 GMT"
+    },
+    "/deepagents/shared-state/in-app-agent-write": {
+      "file": "deepagents__shared-state__in-app-agent-write.md",
+      "sha256": "fd83c208d67c1609a79eeed6f9da96cf32509bdb91882a780d86eb02cea0e001",
+      "bytes": 5696,
+      "lines": 163,
+      "routes": [
+        "/shared-state/in-app-agent-write"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:26:19 GMT"
+    },
+    "/deepagents/shared-state/predictive-state-updates": {
+      "file": "deepagents__shared-state__predictive-state-updates.md",
+      "sha256": "bfa60c65a97797b09b06df0724ae4c92db22f781513adb30592c333030d55c66",
+      "bytes": 28670,
+      "lines": 627,
+      "routes": [
+        "/shared-state/predictive-state-updates"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:26:19 GMT"
+    },
+    "/deepagents/shared-state/state-inputs-outputs": {
+      "file": "deepagents__shared-state__state-inputs-outputs.md",
+      "sha256": "014b5b6b26a8e9c08319dd52552ea775cb16804300ee5464b87951f74597b8ab",
+      "bytes": 4821,
+      "lines": 119,
+      "routes": [
+        "/shared-state/state-inputs-outputs"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:26:19 GMT"
+    },
+    "/deepagents/shared-state/workflow-execution": {
+      "file": "deepagents__shared-state__workflow-execution.md",
+      "sha256": "39f8f3faaf87d9fb4a77bc02433755d1601922e048b3e08285e804578ec54b90",
+      "bytes": 4837,
+      "lines": 125,
+      "routes": [
+        "/shared-state/workflow-execution"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:26:19 GMT"
+    }
+  },
+  "sitemap": {
+    "fetchedAt": "2026-08-17T13:26:18.376Z",
+    "urlsUnderRoot": 132,
+    "knownUnmapped": [
+      "https://docs.copilotkit.ai/deepagents/agent-config",
+      "https://docs.copilotkit.ai/deepagents/agent-spec",
+      "https://docs.copilotkit.ai/deepagents/agent-spec/human-in-the-loop",
+      "https://docs.copilotkit.ai/deepagents/agent-spec/langgraph",
+      "https://docs.copilotkit.ai/deepagents/agent-spec/quickstart",
+      "https://docs.copilotkit.ai/deepagents/agent-spec/wayflow",
+      "https://docs.copilotkit.ai/deepagents/agentic-chat-ui",
+      "https://docs.copilotkit.ai/deepagents/agentic-protocols",
+      "https://docs.copilotkit.ai/deepagents/agentic-protocols/a2a",
+      "https://docs.copilotkit.ai/deepagents/agentic-protocols/ag-ui",
+      "https://docs.copilotkit.ai/deepagents/agentic-protocols/ag-ui-middleware",
+      "https://docs.copilotkit.ai/deepagents/agentic-protocols/mcp",
+      "https://docs.copilotkit.ai/deepagents/auth",
+      "https://docs.copilotkit.ai/deepagents/backend/ag-ui",
+      "https://docs.copilotkit.ai/deepagents/backend/agent-runner",
+      "https://docs.copilotkit.ai/deepagents/backend/copilot-runtime",
+      "https://docs.copilotkit.ai/deepagents/backend/custom-agent",
+      "https://docs.copilotkit.ai/deepagents/backend/runtime-endpoints",
+      "https://docs.copilotkit.ai/deepagents/backend/self-managed-agents",
+      "https://docs.copilotkit.ai/deepagents/build-with-agents",
+      "https://docs.copilotkit.ai/deepagents/built-in-agent",
+      "https://docs.copilotkit.ai/deepagents/cli",
+      "https://docs.copilotkit.ai/deepagents/concepts/architecture",
+      "https://docs.copilotkit.ai/deepagents/concepts/generative-ui-overview",
+      "https://docs.copilotkit.ai/deepagents/concepts/oss-vs-enterprise",
+      "https://docs.copilotkit.ai/deepagents/concepts/which-hook",
+      "https://docs.copilotkit.ai/deepagents/contributing/code-contributions",
+      "https://docs.copilotkit.ai/deepagents/contributing/code-contributions/package-linking",
+      "https://docs.copilotkit.ai/deepagents/contributing/docs-contributions",
+      "https://docs.copilotkit.ai/deepagents/cookbook",
+      "https://docs.copilotkit.ai/deepagents/cookbook/angular-adk-agentic-app",
+      "https://docs.copilotkit.ai/deepagents/cookbook/arcade",
+      "https://docs.copilotkit.ai/deepagents/cookbook/daytona",
+      "https://docs.copilotkit.ai/deepagents/cookbook/openbox-governed-copilotkit",
+      "https://docs.copilotkit.ai/deepagents/cookbook/oracle-agent-spec-memory",
+      "https://docs.copilotkit.ai/deepagents/custom-look-and-feel/css",
+      "https://docs.copilotkit.ai/deepagents/custom-look-and-feel/headless-ui",
+      "https://docs.copilotkit.ai/deepagents/custom-look-and-feel/reasoning-messages",
+      "https://docs.copilotkit.ai/deepagents/custom-look-and-feel/slots",
+      "https://docs.copilotkit.ai/deepagents/deepagents",
+      "https://docs.copilotkit.ai/deepagents/deploy/agentcore",
+      "https://docs.copilotkit.ai/deepagents/examples",
+      "https://docs.copilotkit.ai/deepagents/faq",
+      "https://docs.copilotkit.ai/deepagents/generative-ui",
+      "https://docs.copilotkit.ai/deepagents/generative-ui/a2ui",
+      "https://docs.copilotkit.ai/deepagents/generative-ui/a2ui/advanced",
+      "https://docs.copilotkit.ai/deepagents/generative-ui/a2ui/dynamic-schema",
+      "https://docs.copilotkit.ai/deepagents/generative-ui/a2ui/fixed-schema",
+      "https://docs.copilotkit.ai/deepagents/generative-ui/a2ui/styling",
+      "https://docs.copilotkit.ai/deepagents/generative-ui/display",
+      "https://docs.copilotkit.ai/deepagents/generative-ui/hashbrown",
+      "https://docs.copilotkit.ai/deepagents/generative-ui/interactive",
+      "https://docs.copilotkit.ai/deepagents/generative-ui/json-render",
+      "https://docs.copilotkit.ai/deepagents/generative-ui/mcp-apps",
+      "https://docs.copilotkit.ai/deepagents/generative-ui/open-generative-ui",
+      "https://docs.copilotkit.ai/deepagents/generative-ui/open-json-ui",
+      "https://docs.copilotkit.ai/deepagents/generative-ui/reasoning",
+      "https://docs.copilotkit.ai/deepagents/generative-ui/tool-based",
+      "https://docs.copilotkit.ai/deepagents/headless",
+      "https://docs.copilotkit.ai/deepagents/headless-threads",
+      "https://docs.copilotkit.ai/deepagents/human-in-the-loop",
+      "https://docs.copilotkit.ai/deepagents/human-in-the-loop/headless",
+      "https://docs.copilotkit.ai/deepagents/human-in-the-loop/interrupt-flow",
+      "https://docs.copilotkit.ai/deepagents/human-in-the-loop/useInterrupt",
+      "https://docs.copilotkit.ai/deepagents/inspector",
+      "https://docs.copilotkit.ai/deepagents/migrate/1.10.X",
+      "https://docs.copilotkit.ai/deepagents/migrate/1.8.2",
+      "https://docs.copilotkit.ai/deepagents/migrate/v2",
+      "https://docs.copilotkit.ai/deepagents/multi-agent/subagents",
+      "https://docs.copilotkit.ai/deepagents/multimodal-attachments",
+      "https://docs.copilotkit.ai/deepagents/prebuilt-components",
+      "https://docs.copilotkit.ai/deepagents/prebuilt-components/chat",
+      "https://docs.copilotkit.ai/deepagents/prebuilt-components/chat-controls",
+      "https://docs.copilotkit.ai/deepagents/prebuilt-components/copilot-threads-drawer",
+      "https://docs.copilotkit.ai/deepagents/prebuilt-components/popup",
+      "https://docs.copilotkit.ai/deepagents/prebuilt-components/sidebar",
+      "https://docs.copilotkit.ai/deepagents/premium/headless-ui",
+      "https://docs.copilotkit.ai/deepagents/premium/intelligence-platform",
+      "https://docs.copilotkit.ai/deepagents/premium/managed-intelligence-platform",
+      "https://docs.copilotkit.ai/deepagents/premium/overview",
+      "https://docs.copilotkit.ai/deepagents/premium/self-hosting",
+      "https://docs.copilotkit.ai/deepagents/premium/threads-explained",
+      "https://docs.copilotkit.ai/deepagents/programmatic-control",
+      "https://docs.copilotkit.ai/deepagents/reference/v2/hooks/useCapabilities",
+      "https://docs.copilotkit.ai/deepagents/runtime-server-adapter",
+      "https://docs.copilotkit.ai/deepagents/shared-state",
+      "https://docs.copilotkit.ai/deepagents/shared-state/agent-readonly",
+      "https://docs.copilotkit.ai/deepagents/shared-state/rendering-in-app",
+      "https://docs.copilotkit.ai/deepagents/shared-state/streaming",
+      "https://docs.copilotkit.ai/deepagents/telemetry",
+      "https://docs.copilotkit.ai/deepagents/threads",
+      "https://docs.copilotkit.ai/deepagents/threads-import",
+      "https://docs.copilotkit.ai/deepagents/threads-lifecycle",
+      "https://docs.copilotkit.ai/deepagents/troubleshooting/common-issues",
+      "https://docs.copilotkit.ai/deepagents/troubleshooting/debug-mode",
+      "https://docs.copilotkit.ai/deepagents/troubleshooting/error-debugging",
+      "https://docs.copilotkit.ai/deepagents/troubleshooting/error-reference",
+      "https://docs.copilotkit.ai/deepagents/troubleshooting/event-inspector",
+      "https://docs.copilotkit.ai/deepagents/troubleshooting/hook-explorer",
+      "https://docs.copilotkit.ai/deepagents/troubleshooting/inspector-dev-console",
+      "https://docs.copilotkit.ai/deepagents/tutorials/ai-powered-textarea/next-steps",
+      "https://docs.copilotkit.ai/deepagents/tutorials/ai-powered-textarea/overview",
+      "https://docs.copilotkit.ai/deepagents/tutorials/ai-powered-textarea/step-1-checkout-repo",
+      "https://docs.copilotkit.ai/deepagents/tutorials/ai-powered-textarea/step-2-setup-copilotkit",
+      "https://docs.copilotkit.ai/deepagents/tutorials/ai-powered-textarea/step-3-copilot-textarea",
+      "https://docs.copilotkit.ai/deepagents/tutorials/ai-powered-textarea/step-4-copilot-readable-state",
+      "https://docs.copilotkit.ai/deepagents/tutorials/ai-todo-app/next-steps",
+      "https://docs.copilotkit.ai/deepagents/tutorials/ai-todo-app/overview",
+      "https://docs.copilotkit.ai/deepagents/tutorials/ai-todo-app/step-1-checkout-repo",
+      "https://docs.copilotkit.ai/deepagents/tutorials/ai-todo-app/step-2-setup-copilotkit",
+      "https://docs.copilotkit.ai/deepagents/tutorials/ai-todo-app/step-3-copilot-readable-state",
+      "https://docs.copilotkit.ai/deepagents/tutorials/ai-todo-app/step-4-frontend-tools",
+      "https://docs.copilotkit.ai/deepagents/tutorials/multi-conversation-chat",
+      "https://docs.copilotkit.ai/deepagents/voice",
+      "https://docs.copilotkit.ai/deepagents/vs-code-extension",
+      "https://docs.copilotkit.ai/deepagents/whats-new",
+      "https://docs.copilotkit.ai/deepagents/whats-new/a2a-mcp-handshake",
+      "https://docs.copilotkit.ai/deepagents/whats-new/a2ui-launch",
+      "https://docs.copilotkit.ai/deepagents/whats-new/generative-ui-spec-support",
+      "https://docs.copilotkit.ai/deepagents/whats-new/langgraph-deep-agents",
+      "https://docs.copilotkit.ai/deepagents/whats-new/mcp-apps-support",
+      "https://docs.copilotkit.ai/deepagents/whats-new/v1-50"
+    ]
+  }
+}
