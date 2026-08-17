@@ -11,7 +11,13 @@
  * routes without one are reference-only and have no agent.
  */
 
-export const DOC_SYNC_DATE = "2026-08-06";
+/**
+ * There is exactly one doc-sync date in this repo, and it is not here: it is
+ * `syncedAt` in `doc-snapshot/manifest.json`, written every time the sync
+ * button runs. A hand-maintained date alongside it only ever drifted out of
+ * agreement with the machine one, so it was removed — `/doc-sync` is the
+ * single place that answers "how current are these docs".
+ */
 export const DOCS_ROOT = "https://docs.copilotkit.ai/deepagents";
 
 export type RouteStatus = "working" | "partial" | "reference" | "broken" | "not-started";
@@ -179,6 +185,19 @@ export const NAV: NavGroup[] = [
         status: "reference",
         statusNote:
           "Reference only — the page is an upstream duplicate of Input/Output Schemas, so there is nothing of its own to implement.",
+      },
+    ],
+  },
+  {
+    title: "Doc Sync",
+    routes: [
+      {
+        path: "/doc-sync",
+        title: "Doc drift",
+        docPath: "/deepagents",
+        summary:
+          "Re-fetches the markdown behind every tracked doc page and diffs it against the stored snapshot, flagging changes inside code blocks.",
+        status: "reference",
       },
     ],
   },
