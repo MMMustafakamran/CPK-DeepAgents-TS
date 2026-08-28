@@ -75,6 +75,52 @@ export const NAV: NavGroup[] = [
     ],
   },
   {
+    title: "Basics",
+    routes: [
+      {
+        path: "/prebuilt-components/copilot-threads-drawer",
+        hasDemo: true,
+        agentId: "sample_agent",
+        title: "Threads Drawer",
+        docPath: "/deepagents/prebuilt-components/copilot-threads-drawer",
+        summary:
+          "The drop-in conversation sidebar, wired with no active-thread state of its own.",
+        status: "working",
+        statusNote:
+          "Needs the runtime in Intelligence mode, and a license token for the unlocked view — see the Quickstart's connection panel.",
+      },
+    ],
+  },
+  {
+    title: "Rich Threads",
+    routes: [
+      {
+        path: "/headless-threads",
+        hasDemo: true,
+        agentId: "sample_agent",
+        title: "Headless Threads",
+        docPath: "/deepagents/headless-threads",
+        summary:
+          "The same thread data through useThreads, with a hand-built list — including rename, which the drawer omits.",
+        status: "working",
+        statusNote:
+          "Needs Intelligence mode. In SSE mode /info reports mutations: false, so rename/archive/delete have no endpoint.",
+      },
+      {
+        path: "/threads-lifecycle",
+        hasDemo: true,
+        agentId: "sample_agent",
+        title: "Thread & History Lifecycle",
+        docPath: "/deepagents/threads-lifecycle",
+        summary:
+          "Where a threadId comes from, how history replays, and how switching differs from starting fresh.",
+        status: "working",
+        statusNote:
+          "Switch/start are live regardless; history replay needs a server-side store to replay from.",
+      },
+    ],
+  },
+  {
     title: "Generative UI",
     routes: [
       {
