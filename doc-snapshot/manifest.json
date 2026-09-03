@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "docsRoot": "https://docs.copilotkit.ai/deepagents",
-  "syncedAt": "2026-08-26T10:26:25.150Z",
+  "syncedAt": "2026-09-03T13:06:21.120Z",
   "pages": {
     "/deepagents": {
       "file": "deepagents.md",
@@ -54,27 +54,27 @@
     },
     "/deepagents/generative-ui/your-components/interrupt-based": {
       "file": "deepagents__generative-ui__your-components__interrupt-based.md",
-      "sha256": "357ef26c857c8345dc94b312083e1f98a3ea9850f9c237283338f0c29b23da18",
-      "bytes": 15904,
-      "lines": 406,
+      "sha256": "8da705a7c925a763d0e57ac2307d92ebef609d2a4e33d1b0c1d5d10199704487",
+      "bytes": 18051,
+      "lines": 444,
       "routes": [
         "/generative-ui/your-components/interrupt-based"
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 26 Aug 2026 10:26:26 GMT"
+      "date": "Thu, 03 Sep 2026 13:06:21 GMT"
     },
     "/deepagents/quickstart": {
       "file": "deepagents__quickstart.md",
-      "sha256": "8d89c1891579b0c5aca462be4f7677638bac5447470a8b9cfdb98d93e1852ed0",
-      "bytes": 17642,
-      "lines": 490,
+      "sha256": "4b8f3a7cb04430fa213a16ee4a46c3980ba4f07024f703998dd881bf7dcb8eb3",
+      "bytes": 17504,
+      "lines": 487,
       "routes": [
         "/quickstart"
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 26 Aug 2026 10:26:26 GMT"
+      "date": "Thu, 03 Sep 2026 13:06:21 GMT"
     },
     "/deepagents/shared-state/in-app-agent-read": {
       "file": "deepagents__shared-state__in-app-agent-read.md",
@@ -102,15 +102,15 @@
     },
     "/deepagents/shared-state/predictive-state-updates": {
       "file": "deepagents__shared-state__predictive-state-updates.md",
-      "sha256": "bfa60c65a97797b09b06df0724ae4c92db22f781513adb30592c333030d55c66",
-      "bytes": 28670,
-      "lines": 627,
+      "sha256": "cee5b56acd869cb066125ac613849a6b6072ee2bfad2867f85aac539aea2c759",
+      "bytes": 30517,
+      "lines": 670,
       "routes": [
         "/shared-state/predictive-state-updates"
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 26 Aug 2026 10:26:26 GMT"
+      "date": "Thu, 03 Sep 2026 13:06:21 GMT"
     },
     "/deepagents/shared-state/state-inputs-outputs": {
       "file": "deepagents__shared-state__state-inputs-outputs.md",
