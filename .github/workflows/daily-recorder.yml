@@ -107,10 +107,11 @@ jobs:
       drift_state: ${{ steps.check.outputs.state }}
       should_record: ${{ steps.decide.outputs.should_record }}
       gated: ${{ steps.decide.outputs.gated }}
+      has_model_key: ${{ steps.creds.outputs.has_model_key }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
 
@@ -195,7 +196,7 @@ jobs:
 
       - name: Open or update the drift issue
         if: steps.check.outputs.state == 'drift' && github.event_name == 'schedule'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
@@ -244,11 +245,62 @@ jobs:
               });
             }
 
+      # ---- The other gate -----------------------------------------------
+      #
+      # Every graph in this backend talks to OpenAI, so a run without a model
+      # key cannot record anything -- ci/lib/preflight.mjs aborts before the
+      # first page. Left unchecked that abort happens three times over, ~50s
+      # into each shard, after Playwright, Chromium and ffmpeg have installed,
+      # and the reason is one line buried in a shard log while the run reads as
+      # "Record demos failed" -- indistinguishable from a demo that broke.
+      #
+      # A missing repo secret is not something a run can recover from, so it is
+      # established here, once, in seconds, and named in the summary.
+      - name: Check recording credentials
+        id: creds
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          INTELLIGENCE_API_KEY: ${{ secrets.INTELLIGENCE_API_KEY }}
+          COPILOTKIT_LICENSE_TOKEN: ${{ secrets.COPILOTKIT_LICENSE_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          # Only presence and shape are tested. The value is never echoed, and
+          # the live 401 check stays in preflight, inside the shard that uses it.
+          if [ -n "${OPENAI_API_KEY:-}" ] && [ "${OPENAI_API_KEY}" != "sk-..." ]; then
+            echo "has_model_key=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_model_key=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          # These two are optional by design: without them the runtime falls
+          # back to SSE with an in-memory runner and the Rich Threads takes
+          # record a working chat with nothing persisted. That is a weaker clip,
+          # not a failed run -- so it is reported, never blocked.
+          #
+          # if/then rather than `[ ... ] && VAR=`: under `set -e` a false test is
+          # the last command on the line, so the shorter form would exit 1 on the
+          # happy path where both secrets are present.
+          MISSING=""
+          if [ -z "${INTELLIGENCE_API_KEY:-}" ]; then
+            MISSING="${MISSING}\`INTELLIGENCE_API_KEY\` "
+          fi
+          if [ -z "${COPILOTKIT_LICENSE_TOKEN:-}" ]; then
+            MISSING="${MISSING}\`COPILOTKIT_LICENSE_TOKEN\` "
+          fi
+          if [ -n "$MISSING" ]; then
+            {
+              echo "> ⚠️ Optional secrets unset: ${MISSING}— the Rich Threads takes will"
+              echo "> record a working chat with no persistence, and the Threads Drawer stays locked."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Decide whether to record
         id: decide
         env:
           STATE: ${{ steps.check.outputs.state }}
           RUN_MODE: ${{ inputs.run_mode }}
+          HAS_MODEL_KEY: ${{ steps.creds.outputs.has_model_key }}
         run: |
           set -euo pipefail
 
@@ -265,19 +317,50 @@ jobs:
           if [ "${RUN_MODE:-}" = "checks-only" ]; then
             echo "should_record=false" >> "$GITHUB_OUTPUT"
             echo "gated=false" >> "$GITHUB_OUTPUT"
+            echo "no_key=false" >> "$GITHUB_OUTPUT"
             echo "> Checks-only run requested -- stages 1 and 2 only, no recording." >> "$GITHUB_STEP_SUMMARY"
           elif [ "$GATING" = "true" ]; then
             echo "should_record=false" >> "$GITHUB_OUTPUT"
             echo "gated=true" >> "$GITHUB_OUTPUT"
+            echo "no_key=false" >> "$GITHUB_OUTPUT"
             echo "> **Pipeline stopped at stage 1.** The docs moved; recording skipped and an issue filed." >> "$GITHUB_STEP_SUMMARY"
+          # Checked after the drift gate, not before it, so a keyless run still
+          # reports drift and still files the drift issue -- that answer does
+          # not depend on a model key, and it is the answer that ages worst if
+          # a run skips it. Ordered last because drift is the stronger reason:
+          # when the docs have moved, that is what the summary should lead with.
+          elif [ "${HAS_MODEL_KEY:-}" != "true" ]; then
+            echo "should_record=false" >> "$GITHUB_OUTPUT"
+            echo "gated=false" >> "$GITHUB_OUTPUT"
+            echo "no_key=true" >> "$GITHUB_OUTPUT"
           else
             echo "should_record=true" >> "$GITHUB_OUTPUT"
             echo "gated=false" >> "$GITHUB_OUTPUT"
+            echo "no_key=false" >> "$GITHUB_OUTPUT"
           fi
+
+      # Fails the run rather than skipping quietly: a nightly that goes green
+      # while recording nothing is worse than a red one, because nobody looks.
+      # should_record is already false, so the three shards skip instead of
+      # installing a toolchain to die on the same missing key.
+      - name: Recording credentials are missing
+        if: steps.decide.outputs.no_key == 'true'
+        run: |
+          {
+            echo "## ⛔ Recording skipped -- no model credential"
+            echo
+            echo "\`secrets.OPENAI_API_KEY\` is unset (or still the \`sk-...\` placeholder)."
+            echo "Every graph in \`backend/\` runs on an OpenAI model, so no page can record."
+            echo
+            echo "**To fix:** Settings -> Secrets and variables -> Actions -> New repository secret,"
+            echo "named \`OPENAI_API_KEY\`. Then re-run this workflow."
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::error title=Missing OPENAI_API_KEY::Set the OPENAI_API_KEY repository secret; recording cannot run without it."
+          exit 1
 
       - name: Upload drift report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ steps.meta.outputs.run_name }}-drift
           path: drift.txt
@@ -300,9 +383,9 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
 
@@ -375,12 +458,12 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # No Python step: this repo's backend is TypeScript, served by the
       # LangGraph JS CLI, so Node is the only runtime a run needs.
       - name: Set up Node.js 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: 'npm'
@@ -471,15 +554,36 @@ jobs:
             echo "### 🧩 Worker Shard ${{ matrix.shard }}/3 produced no report" >> $GITHUB_STEP_SUMMARY
           fi
 
+      # RUN_REPORT is written under a fixed name, and stage 4 merges all three
+      # shard artifacts into one flat folder. Uploaded as-is, the three reports
+      # collide there and the survivor is whichever landed last -- a file
+      # describing a third of the run, sitting in the package for the whole run
+      # under a name that claims otherwise. RECORD_RESULTS already carries a
+      # `.shard-N` suffix (autorecorder/cli.ts) precisely so it survives that
+      # merge; these two need the same treatment.
+      - name: Name this shard's report after this shard
+        if: always()
+        run: |
+          set -euo pipefail
+          for EXT in md json; do
+            SRC="autorecorder/videos/RUN_REPORT.${EXT}"
+            # if/then, not `[ -f ] && mv`: this step runs on a failed shard too,
+            # where the report may not exist, and a false test under `set -e`
+            # would fail the rename step on top of the failure being reported.
+            if [ -f "$SRC" ]; then
+              mv "$SRC" "autorecorder/videos/RUN_REPORT.shard-${{ matrix.shard }}.${EXT}"
+            fi
+          done
+
       - name: Upload Shard Artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ needs.prepare.outputs.run_name }}-shard-${{ matrix.shard }}
           path: |
             autorecorder/videos/*.webm
-            autorecorder/videos/RUN_REPORT.md
-            autorecorder/videos/RUN_REPORT.json
+            autorecorder/videos/RUN_REPORT.shard-*.md
+            autorecorder/videos/RUN_REPORT.shard-*.json
             autorecorder/videos/RECORD_RESULTS*.json
             autorecorder/videos/logs/*.log
           if-no-files-found: ignore
@@ -498,14 +602,14 @@ jobs:
       # from. The shards' node_modules are not here, so the version cells fall
       # back to the declared ranges -- which is why RUN_REPORT, written inside
       # the shard that recorded, stays the authority on what actually ran.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
 
       - name: Download all shard artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           path: all-recordings
           pattern: ${{ needs.prepare.outputs.run_name }}-shard-*
@@ -538,7 +642,7 @@ jobs:
       # One folder holding every clip from the run plus the report they are
       # evidence for, named for the project and the time it ran.
       - name: Upload Consolidated Demo Recordings Package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ needs.prepare.outputs.run_name }}
           path: all-recordings/

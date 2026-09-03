@@ -238,13 +238,23 @@ jobs, so all four names agree. Change the prefix via `PROJECT_SLUG` in
 
 | Name | Kind | Purpose |
 |---|---|---|
-| `OPENAI_API_KEY` | secret | Model provider key. The only credential this repo needs. |
-| `OPENAI_MODEL` | variable | Model override (default `gpt-4o`), read by `backend/src/shared.py` |
+| `OPENAI_API_KEY` | secret | Model provider key. Required — without it nothing records. |
+| `OPENAI_MODEL` | variable | Model override (default `gpt-4o`), read by `backend/src/shared.ts` |
+| `INTELLIGENCE_API_KEY` | secret | Optional. Turns on Intelligence mode; without it the runtime falls back to SSE with an in-memory runner. |
+| `COPILOTKIT_LICENSE_TOKEN` | secret | Optional. Without it the Threads Drawer stays locked. |
 
-Every graph here runs on an OpenAI model through `langchain-openai`, and there
-are no Rich Threads pages, so there is no license token or Intelligence pair to
-configure. `LANGSMITH_API_KEY` is only needed against a LangGraph Platform
-deployment — a local `langgraph dev` does not check it.
+Every graph here runs on an OpenAI model through `@langchain/openai`, so
+`OPENAI_API_KEY` is what every page needs. Stage 1 of the daily recorder checks
+it is set before stage 3 starts: a missing key fails the run in seconds with a
+named error, rather than letting three shards install a toolchain and each die
+in `lib/preflight.mjs` a minute in.
+
+The other two are optional and only affect the three Rich Threads pages
+(`threads-drawer`, `headless-threads`, `threads-lifecycle`). Unset, those takes
+still record a working chat, but nothing persists and rename/archive/delete have
+no endpoint — a weaker clip, not a failed run. Stage 1 says so in the summary
+when either is missing. `LANGSMITH_API_KEY` is only needed against a LangGraph
+Platform deployment — a local `langgraph dev` does not check it.
 
 ## Troubleshooting
 
@@ -256,7 +266,9 @@ environment variables can answer instead of the new one.
 
 **"OPENAI_API_KEY is missing or still the placeholder"** — set a real key in
 `backend/.env`. Note the precedence: `backend/.env` is read first, so an
-uncommented placeholder there shadows a real key at the root.
+uncommented placeholder there shadows a real key at the root. In CI the same
+message means the `OPENAI_API_KEY` repository secret is unset (Settings →
+Secrets and variables → Actions); stage 1 reports it there and skips recording.
 
 **Server died mid-run** — read `autorecorder/videos/logs/backend.log` and
 `frontend.log`. They are uploaded with the CI artifacts.
