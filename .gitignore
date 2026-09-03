@@ -25,3 +25,13 @@ next-env.d.ts
 # The snapshot itself (doc-snapshot/pages/, manifest.json, CHANGELOG.md)
 # IS committed; it is the baseline every diff is taken against.
 doc-snapshot/reports/
+
+# Recorder output. Videos are large and per-run; the reports beside them are
+# derived from the videos, so both are regenerated rather than committed.
+autorecorder/videos/*.webm
+autorecorder/videos/logs/
+autorecorder/videos/RUN_REPORT.*
+autorecorder/videos/RECORD_RESULTS*.json
+
+# Generated after install by ci/write-versions.mjs -- it describes one run.
+frontend/VERSIONS.md

@@ -13,7 +13,8 @@ A navigable, working test harness for the CopilotKit ↔ Deep Agents (**TypeScri
 | **Agent framework** | `deepagents` 1.12.2 · `langchain` 1.5.5 · `@langchain/langgraph` 1.4.9 · `@langchain/langgraph-cli` 1.4.4 |
 | **Frontend** | Next.js 16.3.0 · React 19.2.8 · TypeScript 5 · Tailwind 4 |
 | **Agent server port** | **8124** (not the Quickstart's 8123 — see [§3](#3-architecture)) |
-| **CI** | none |
+| **Recording pipeline** | `autorecorder/` + `ci/` — one narrated clip per doc page ([§10.5](#105-the-recording-pipeline)) |
+| **CI** | `.github/workflows/daily-recorder.yml` — nightly at 05:27 UTC, 3 shards |
 
 ---
 
@@ -403,14 +404,87 @@ Commit `doc-snapshot/` — `pages/`, `manifest.json` and `CHANGELOG.md` are the 
 
 ---
 
+## 10.5. The recording pipeline
+
+The harness proves the docs run. The pipeline proves it *repeatedly*, and turns
+each run into something watchable: one clip per doc page, showing the doc, then
+the code in a simulated IDE, then that code working (or not) in the live route.
+`PROJECT_GOAL.md` states what a run is for; this is how to drive one.
+
+```bash
+npm run automate            # everything: drift → preflight → deps → servers → record → report
+npm run automate:issues     # only the pages carrying a known defect
+npm run record -- --quickstart      # one page, against servers you already have up
+npm run record:list                 # every page id, its doc URL and its demo URL
+npm run record:doctor               # static check of the recorder's config
+npm run record:doctor:online        # the same, plus every route, doc URL and selector, live
+npm run drift                       # doc drift, headless
+npm run report                      # rebuild DOCUMENTED_REPORT.md from the last run
+```
+
+`npm run record:doctor` is the definition of done for any change under
+`autorecorder/`: it exits 0, or the change is not finished.
+
+**Fourteen takes, eleven doc pages.** Three pages carry more than one take
+because they carry more than one variant behind a tab strip — the two interrupt
+tabs, and the three predictive-state variants. Two tracked doc pages have no
+take at all: `state-inputs-outputs` and `workflow-execution` are reference-only
+routes with no `/demo-chat` surface, so there is nothing to drive. That is a
+known gap, listed in `PROJECT_GOAL.md`.
+
+**`[ISSUE]` is not `[FAIL]`.** A page with a `knownIssue` in
+`autorecorder/config/pages.config.ts` is *expected* to misbehave: the take
+records the misbehaviour, types the finding into an on-screen Notepad, reports
+`[ISSUE]` and exits 0. Two pages are on that list here — the conditional
+interrupt tab and Writing agent state, both in [§9](#9-known-issues--docvsimplementation-discrepancies).
+A route that 404s or a demo that renders no chat is still a `[FAIL]`: those are
+breaks in this repo rather than in the thing under test.
+
+**Ports.** The pipeline starts the agent server on **8124** and Next on 3000,
+and refuses to start a second server on a port already served. Change the agent
+port and three files move together: `ci/lib/config.mjs`,
+`autorecorder/config/project.config.ts`, and `LANGGRAPH_DEPLOYMENT_URL` in
+`frontend/.env.local`.
+
+**Videos are not committed.** They are build output — reproducible from this
+repo plus `npm run record` — and a few re-records of fourteen clips would put
+hundreds of megabytes into `.git`. Publish them as release assets instead.
+
+**Narration is parked.** `autorecorder/audio/` pairs an `.m4a` to a clip by
+filename. Every track this repo inherited was recorded against the Python
+sibling's findings, three of which do not hold here, so all of them sit in
+`audio/on-hold/` where nothing scans them. Re-record before promoting one.
+
+---
+
 ## 11. Project structure
 
 ```
 deepagents-ts/
 ├── CLAUDE.md
 ├── README.md
+├── PROJECT_GOAL.md                   what a run is for, and what "done" means
+├── package.json                      workspace scripts (automate / record / drift / report)
 ├── .env.example                      both env blocks, annotated
 ├── .gitignore
+│
+├── .github/workflows/
+│   ├── daily-recorder.yml            nightly drift gate → 3 recording shards → report
+│   └── doc-sync.yml                  scheduled snapshot refresh
+│
+├── ci/                               the pipeline: drift → preflight → deps → servers → record → report
+│   ├── automate.mjs                  the one entry point (`npm run automate`)
+│   ├── build-report.mjs              DOCUMENTED_REPORT.md
+│   ├── check-doc-drift.mjs           headless version of the /doc-sync button
+│   ├── write-versions.mjs            frontend/VERSIONS.md, resolved after install
+│   └── lib/                          ports, env loading, page groups, muxing, report
+│
+├── autorecorder/                     per-page screen capture (doc → code → live feature)
+│   ├── ADAPT.md                      read before touching anything in here
+│   ├── config/                       ← the whole adaptation surface: project, pages, selectors
+│   ├── actions/                      what to do on a page that needs more than a prompt
+│   ├── core/                         frozen: engine, IDE simulator, cursor, doctor
+│   └── audio/on-hold/                narration, parked — see audio/README.md
 │
 ├── backend/                          TypeScript — the agents
 │   ├── package.json                  deps + @langchain/langgraph-cli; zod pinned to v3
