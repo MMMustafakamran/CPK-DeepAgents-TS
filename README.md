@@ -4,7 +4,7 @@ A navigable, working test harness for the CopilotKit ↔ Deep Agents (**TypeScri
 
 | | |
 |---|---|
-| **Doc-sync date** | 2026-08-06 — every page below was fetched live on this date |
+| **Doc-sync date** | 2026-09-03 — every page below was fetched live on this date |
 | **Doc root tracked** | <https://docs.copilotkit.ai/deepagents> |
 | **Language tab** | **TypeScript** throughout. The Python tabs are the sibling repo's job. |
 | **Backend flavour** | LangGraph CLI (`langgraph.json`), the tab the TypeScript page tells you to pick |
@@ -266,7 +266,7 @@ Verified 2026-08-06 by driving every graph through the real `CopilotRuntime` rou
 | [threads-lifecycle](https://docs.copilotkit.ai/deepagents/threads-lifecycle) | `/threads-lifecycle` | `sample_agent` | ✅ Working | Switch/start are live regardless; replay needs a server-side store |
 | [generative-ui/tool-rendering](https://docs.copilotkit.ai/deepagents/generative-ui/tool-rendering) | `/generative-ui/tool-rendering` | `tool_rendering_agent` | ✅ Working | `useDefaultRenderTool` destructures a prop that doesn't exist |
 | [generative-ui/state-rendering](https://docs.copilotkit.ai/deepagents/generative-ui/state-rendering) | `/generative-ui/state-rendering` | `state_rendering_agent` | ✅ Working | Emit loop's caller is not shown by the page |
-| [.../your-components/interrupt-based](https://docs.copilotkit.ai/deepagents/generative-ui/your-components/interrupt-based) | `/generative-ui/your-components/interrupt-based` | `interrupt_agent`, `interrupt_multi_agent` | ⚠️ Partial | Single tab works; conditional tab left as printed and does not |
+| [.../your-components/interrupt-based](https://docs.copilotkit.ai/deepagents/generative-ui/your-components/interrupt-based) | `/generative-ui/your-components/interrupt-based` | `interrupt_agent`, `interrupt_multi_agent` | ⚠️ Partial | Single tab works; conditional tab left as printed and does not; the new state-note section is reproduced and does not build its note (item 2) |
 | [frontend-tools](https://docs.copilotkit.ai/deepagents/frontend-tools) | `/frontend-tools` | `frontend_tools_agent` | ✅ Working | Page's TS is a comment; state field missing `zodState` |
 | [shared-state/in-app-agent-read](https://docs.copilotkit.ai/deepagents/shared-state/in-app-agent-read) | `/shared-state/in-app-agent-read` | `shared_state_agent` | ✅ Working | `zodState` default really applies in TS (unlike Python) |
 | [shared-state/in-app-agent-write](https://docs.copilotkit.ai/deepagents/shared-state/in-app-agent-write) | `/shared-state/in-app-agent-write` | `shared_state_agent` | ⚠️ Partial | Write round-trips; model never sees it; `exposeState` can't reach it |
@@ -293,7 +293,8 @@ Every item was checked against the installed packages; the behavioural ones were
 
 **2. `exposeState` cannot see any user state field.**
 The intended remedy for "the model doesn't see my state" — `createCopilotkitMiddleware({ exposeState })` — appends a "Current agent state:" note to the system prompt, built from `request.state` inside the CopilotKit middleware's own `wrapModelCall`. **That object is scoped to the declaring middleware's `stateSchema`**, so it contains only `messages` and `copilotkit`. Your `language` field lives on *your* middleware and is invisible to it. Verified with a spy middleware: the note is never appended, with `exposeState: ["language"]` *and* with `exposeState: true`. Since every user field is declared on a user middleware, `exposeState` has nothing it can reach. The Python `CopilotKitMiddleware(expose_state=[...])` reads whole graph state and works — same feature, opposite outcome.
-→ `/shared-state/in-app-agent-write` is ⚠️ Partial as a result.
+The 2026-09-03 doc sync spread this further: [interrupt-based](https://docs.copilotkit.ai/deepagents/generative-ui/your-components/interrupt-based) gained a "Make your agent aware of interruptions" section built on `createCopilotkitMiddleware({ exposeState: ["agentName"] })`, with a system prompt that tells the model *Current agent state contains agentName*. `agentName` is declared on `agentNameMiddleware`, so the note is never built and the prompt describes something absent. Re-measured there with a fake model capturing the request: unchanged with the middleware first, last, and with `exposeState: true`; a probe middleware declaring `agentName` itself reads it at the same point, which pins it to schema scoping rather than ordering.
+→ `/shared-state/in-app-agent-write` is ⚠️ Partial as a result, and the interrupt route now carries the same caveat.
 
 **3. The JS dev server ignores `output` schemas.**
 `StateGraph({ state, input, output })` filters correctly when called directly:
@@ -309,7 +310,7 @@ So the server serialises the raw checkpoint, and AG-UI's `STATE_SNAPSHOT` inheri
 → `/shared-state/state-inputs-outputs` is 📄 reference-only as a result: the graph is real, but there is nothing it can demonstrate live.
 
 **4. `zodState` is mandatory and two pages omit it.**
-Its docstring explains why: without it a Zod field carries no JSON-schema hook, LangGraph drops it from the graph's `output_schema`, and AG-UI filters it out of every `STATE_SNAPSHOT` — so `useAgent().state.x` stays `undefined` even though the thread state has the value. Both shared-state pages use it correctly. [interrupt-based](https://docs.copilotkit.ai/deepagents/generative-ui/your-components/interrupt-based) declares `agentName: z.string().optional()` bare, and [frontend-tools](https://docs.copilotkit.ai/deepagents/frontend-tools) does the same for `yourAdditionalProperty`. Neither route reads those fields in the browser so nothing breaks — but copy either as a template for a field you *do* want to read and it silently never arrives.
+Its docstring explains why: without it a Zod field carries no JSON-schema hook, LangGraph drops it from the graph's `output_schema`, and AG-UI filters it out of every `STATE_SNAPSHOT` — so `useAgent().state.x` stays `undefined` even though the thread state has the value. Both shared-state pages use it correctly, and the 2026-09-03 doc sync fixed [interrupt-based](https://docs.copilotkit.ai/deepagents/generative-ui/your-components/interrupt-based), which now wraps `agentName` and `approval` — this repo follows. [frontend-tools](https://docs.copilotkit.ai/deepagents/frontend-tools) still declares `yourAdditionalProperty` bare. That route does not read the field in the browser so nothing breaks — but copy it as a template for a field you *do* want to read and it silently never arrives.
 
 ### Shared with the Python sibling
 
@@ -341,10 +342,10 @@ It returns [state-inputs-outputs](https://docs.copilotkit.ai/deepagents/shared-s
 
 Worth recording, since it is the reason this repo covers more than its sibling:
 
-- **Both custom-graph variants of Predictive State Updates are printed in full** — annotation, node, wiring, `compile`. The Python tabs show a bare node referencing an undefined `cpk_action_node`, so the Python repo can only quote them. Two extra live routes here.
+- **Both custom-graph variants of Predictive State Updates are printed in full** — annotation, node, wiring, `compile`. The 2026-09-03 doc sync closed half this gap: the tool-emission Python tab gained its own `StateGraph`, `ToolNode` and `compile`. The manual tab still shows a bare node returning to an undefined `cpk_action_node`, so that is now the one variant the Python repo can only quote.
 - **Variant 1's `createDeepAgent` actually lists its state middleware.** The Python tab defines `AgentState` and never references it, so the key does not exist.
 - **Variant 3 wraps frontend actions in `convertActionsToDynamicStructuredTools`** before `bindTools`. The Python tab passes `state["copilotkit"]["actions"]` straight in, and nothing in the Python package does that conversion.
-- **`createMiddleware` carries schema and hook together**, so the interrupt-based snippet is complete; the Python equivalent needs three pieces and prints two.
+- **`createMiddleware` carries schema and hook together** on the interrupt-based page, where Python needs a separate `AgentState`, an `AgentMiddleware` subclass and an explicit `state_schema` to tie them. The 2026-09-03 doc sync made the Python tab print all three (it used to print two of them), so both tabs are now complete — TypeScript just says it in fewer moving parts.
 - **`zodState(z.enum([...]).default("english"))` really applies at runtime.** The Python `Literal[...] = "english"` on a `TypedDict` is a class attribute LangGraph never applies, so the Python repo has to seed the key by hand.
 
 Two of the page's TypeScript snippets do not typecheck, and both are left as printed with a `@ts-expect-error` above them rather than edited — the annotation is the evidence, since an unused one is itself an error (`TS2578`):

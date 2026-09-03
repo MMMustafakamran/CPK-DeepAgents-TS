@@ -16,11 +16,14 @@ export default function Page() {
         </p>
         <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
           The page splits three ways and <strong>all three are live here</strong>
-          , behind the toggle at the top of the demo. That is the sharpest
-          difference between this repo and its Python sibling: the TypeScript
-          tabs print both custom graphs in full — annotation, node, wiring,{" "}
-          <code>compile</code> — while the Python tabs show a bare node with no
-          graph around it, so the Python repo can only quote them.
+          , behind the toggle at the top of the demo. The TypeScript tabs print
+          both custom graphs in full — annotation, node, wiring,{" "}
+          <code>compile</code>. The Python side is no longer uniformly behind:
+          the 2026-09-03 doc sync gave the tool-emission tab its own{" "}
+          <code>StateGraph</code>, <code>ToolNode</code> and{" "}
+          <code>compile</code>, while the manual tab still shows a bare node
+          with no graph around it — so that is now the one variant the Python
+          sibling repo can only quote.
         </p>
       </Panel>
 

@@ -50,8 +50,10 @@ export default function Page() {
               <>
                 On <strong>One interrupt</strong>: the first message you send is
                 answered with a name prompt instead of a reply. Type a name,
-                submit, and the run resumes — ask it its name afterwards and it
-                uses the one you gave. This half of the page is correct.
+                submit, and the run resumes with the name in thread state — that
+                half of the page works. Whether the agent then calls itself by
+                that name is a separate question the page&apos;s new section gets
+                wrong; see the state-note callout below.
                 <br />
                 <br />
                 On <strong>Two, dispatched by type</strong>: <em>nothing</em>{" "}
@@ -86,12 +88,17 @@ export default function Page() {
         <p>
           The Python tab needs an <code>AgentMiddleware</code> subclass, a
           separate <code>AgentState</code> class, and an explicit{" "}
-          <code>state_schema = AgentState</code> to tie them together — three
-          pieces, only two of which the page prints.{" "}
+          <code>state_schema = AgentState</code> to tie them together. It used
+          to print only two of those three; the 2026-09-03 doc sync filled in
+          the rest, so the gap now is the number of moving parts rather than a
+          missing one.{" "}
           <code>createMiddleware</code> carries the state schema and the{" "}
           <code>beforeModel</code> hook in one object, so the TypeScript snippet
-          is complete as written. The only thing still missing is the{" "}
-          <code>createDeepAgent</code> call that consumes it.
+          is complete as written. The page now prints the{" "}
+          <code>createDeepAgent</code> call that consumes it too, so the first
+          section is copy-pasteable end to end — only the two-interrupt variant
+          below is still written to the shape the page describes rather than
+          copied from it.
         </p>
       </Callout>
 
@@ -156,6 +163,51 @@ export default function Page() {
           there the equivalent class is replaced by the comment{" "}
           <code>&quot;... your full state definition&quot;</code>. Nothing to fix
           on this side.
+        </p>
+      </Callout>
+
+      <Callout tone="warn" title="The state note the new section promises never arrives">
+        <p>
+          &ldquo;Make your agent aware of interruptions&rdquo; is new on this
+          page. It wraps the custom field in <code>zodState</code>, adds{" "}
+          <code>
+            createCopilotkitMiddleware({"{ exposeState: [\"agentName\"] }"})
+          </code>{" "}
+          beside the state middleware, and writes a system prompt that refers to{" "}
+          <em>Current agent state contains agentName</em>. The first two are
+          real; the prompt is left describing something that is not there.
+        </p>
+        <p className="mt-2">
+          <strong>
+            <code>exposeState</code> cannot see a field declared on another
+            middleware.
+          </strong>{" "}
+          It runs inside the CopilotKit middleware&apos;s own{" "}
+          <code>wrapModelCall</code>, reading <code>request.state</code> — and
+          that object is scoped to the <em>declaring</em> middleware&apos;s{" "}
+          <code>stateSchema</code>. The CopilotKit middleware declares{" "}
+          <code>copilotKitStateSchema</code>, so it sees <code>messages</code>{" "}
+          and <code>copilotkit</code> and nothing else.{" "}
+          <code>agentName</code> lives on <code>agentNameMiddleware</code>, so
+          no state note is built and the system prompt reaches the model
+          unchanged.
+        </p>
+        <p className="mt-2">
+          Measured against <code>@copilotkit/sdk-js</code> 1.66.2 with a fake
+          model capturing the request: a probe middleware that declares{" "}
+          <code>agentName</code> itself reads it fine at the same point, which
+          pins the cause to schema scoping rather than ordering — the prompt is
+          unchanged with the middleware first, last, and with{" "}
+          <code>exposeState: true</code>. The interrupt itself is unaffected:
+          the run suspends, resumes, and the name lands in thread state where
+          the frontend can read it.{" "}
+          <a
+            className="underline"
+            href="/shared-state/in-app-agent-read"
+          >
+            The Reading agent state route
+          </a>{" "}
+          hit the same wall from the other direction.
         </p>
       </Callout>
 

@@ -17,9 +17,11 @@ const MULTI_AGENT_ID = "interrupt_multi_agent";
  * `event.value` is that string and the snippet is correct as printed.
  * `resolve` sends the reply back and the run picks up where it stopped.
  *
- * `agentId` is the one addition: the page sets its single agent on the
- * provider, while this harness serves thirteen graphs from one, so each
- * registration has to name the graph it belongs to.
+ * `agentId` is the one addition, and the page now sanctions it: it says
+ * `useInterrupt` uses whatever agent the `CopilotKit` provider configures, and
+ * that `agentId` is for pointing a component at a different agent in a
+ * multi-agent app. This harness serves thirteen graphs from one provider, so
+ * every registration names the graph it belongs to.
  */
 function SingleInterruptChat() {
   useInterrupt({
