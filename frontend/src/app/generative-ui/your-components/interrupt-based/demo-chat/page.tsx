@@ -131,6 +131,7 @@ const AskComponent = ({
  *
  * Expect this tab to be broken. That is the finding, not a bug in the harness.
  */
+//#region conditional-handlers
 function ConditionalInterruptChat() {
     useInterrupt({
         agentId: MULTI_AGENT_ID,
@@ -153,6 +154,7 @@ useInterrupt({
 
   return <CopilotChat agentId={MULTI_AGENT_ID} className="h-full" />;
 }
+//#endregion
 //#endregion
 
 export default function Page() {
