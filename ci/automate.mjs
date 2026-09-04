@@ -396,7 +396,18 @@ async function main() {
     console.error('\n❌ Automation failed:', err.message || err);
     process.exitCode = 1;
   } finally {
-    muxAudioFiles();
+    // Only mux when the recorder actually produced videos this run.
+    //
+    // In `finally` unconditionally, this re-muxed whatever `.webm` files were
+    // already on disk from an earlier run — including after a preflight refusal
+    // that recorded nothing at all. It also prints "✅ Added audio to ..."
+    // straight after "❌ Automation failed", which reads like something was
+    // salvaged when nothing was.
+    if (reportData.success) {
+      muxAudioFiles();
+    } else {
+      console.log('\nℹ️ [Audio Mux] Skipped — no recording completed this run.');
+    }
     generateReport(reportData);
 
     // The deliverable, built from whatever this run recorded. In `finally`
