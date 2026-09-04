@@ -412,6 +412,26 @@ jobs:
           npm --prefix frontend install --no-audit --no-fund
           npm --prefix autorecorder install --no-audit --no-fund
 
+      # The runtime route and the slots demo are the two files most likely to
+      # break on a CopilotKit bump, and nothing else in the pipeline compiles
+      # them: `next dev` serves a page with type errors. Reported, not gating --
+      # a doc snippet that no longer typechecks is a finding, not a build break.
+      - name: Typecheck frontend and recorder
+        run: |
+          set +e
+          npx --prefix frontend tsc --noEmit -p frontend/tsconfig.json > typecheck.txt 2>&1
+          FE=$?
+          npx --prefix autorecorder tsc --noEmit -p autorecorder/tsconfig.json >> typecheck.txt 2>&1
+          AR=$?
+          set -e
+          cat typecheck.txt
+          {
+            echo "## 2a. Typecheck"
+            echo
+            if [ "$FE" = "0" ]; then echo "- frontend: **clean**"; else echo "- frontend: **$(grep -c 'error TS' typecheck.txt) error(s)** -- see the job log"; fi
+            if [ "$AR" = "0" ]; then echo "- autorecorder: **clean**"; else echo "- autorecorder: **errors** -- see the job log"; fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Report the versions this run resolved
         run: |
           set -euo pipefail
