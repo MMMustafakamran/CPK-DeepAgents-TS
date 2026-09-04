@@ -24,8 +24,11 @@
  * pages, or the previous turn's reply is mistaken for this one's.
  *
  * ── Handlers for pages that reproduce a defect ─────────────────────────────
- * Two pages here carry a `knownIssue`, and their handlers have one extra
- * obligation: make the defect visible, then write it down.
+ * Three pages here carry a `knownIssue` — both shared-state routes and the
+ * prebuilt tab of Predictive State Updates — and their handlers have one extra
+ * obligation: make the defect visible, then write it down. Two of the three
+ * also carry a narration track in `autorecorder/audio/`, muxed on after the
+ * recording; nothing in the handler knows about that.
  *
  * The governing rule is that a take may only contain things a person testing
  * this app could actually have done. That rule cost this suite two helpers it
@@ -35,7 +38,7 @@
  * evidence into a recording of a presentation. What survives:
  *
  *   showWorkingVariant(page, opts)     core/compare.ts — the same page against
- *                                      code that works. Unused here: neither of
+ *                                      code that works. Unused here: none of
  *                                      this repo's defects has a one-line fix a
  *                                      reader could apply, so there is no honest
  *                                      paired route to compare against.
@@ -47,8 +50,12 @@
  *                                      note, not the screen
  *
  * Anything a clip needs to *say* rather than show belongs on the demo route
- * itself: `QaNote` in the frontend states what to try and what should happen,
- * which is a thing a tester could plausibly have written on the page.
+ * itself: `QaNote` (`frontend/src/components/qa-note.tsx`) states what to try,
+ * what should happen and what happens instead, which is a thing a tester could
+ * plausibly have written on the page. It is on the three routes above, and it
+ * is what makes "nothing happened" legible on video — an empty panel looks the
+ * same as a slow model until something on screen says what should have been
+ * there.
  */
 
 import { type PageActionHandler, type PageRecordConfig } from '../core/types';

@@ -29,11 +29,15 @@
  * working.
  *
  * ── `knownIssue` ───────────────────────────────────────────────────────────
- * Two of the pages below are on the QA report as broken, and their clips exist
- * to show that. `knownIssue` is what makes the run say `[ISSUE]` rather than
- * `[PASS]`, and it is the same object `ci/build-report.mjs` renders into the
- * daily report — so the sentence typed into Notepad on video and the row that
- * goes to the manager are one string, written here, once.
+ * Three of the pages below are on the QA report as broken, and their clips
+ * exist to show that: Reading agent state, Writing agent state, and the
+ * prebuilt tab of Predictive State Updates. The Python sibling files all three
+ * identically — this repo had been recording the first and third as `[PASS]`
+ * because nothing in their takes asserted the panel that stays empty.
+ * `knownIssue` is what makes the run say `[ISSUE]` rather than `[PASS]`, and it
+ * is the same object `ci/build-report.mjs` renders into the daily report — so
+ * the sentence typed into Notepad on video and the row that goes to the manager
+ * are one string, written here, once.
  *
  * A page whose defect gets fixed upstream should have its `knownIssue` deleted
  * in the same change that confirms the fix. Leaving a stale one behind is worse
@@ -162,9 +166,22 @@ export const PAGES = definePages([
     waitAfterPromptMs: 4000,
   },
   {
-    // Same doc page, second tab. Recorded separately rather than tacked onto the
-    // take above: the tab below is broken and that one is not, and a clip
-    // carrying both findings is a clip nobody can file against either.
+    // Same doc page, second tab, recorded apart from the take above: one clip
+    // per section is what lets a reader of the report open the footage for the
+    // section they are reading rather than scrubbing for it.
+    //
+    // No `knownIssue`, as of 04 Sep 2026. The entry that was here filed the
+    // `enabled({ eventValue })` destructure -- neither registration claimed the
+    // event, so no card was drawn and the run stopped at the interrupt with
+    // nothing to answer it. It was removed on a report that the tab now behaves.
+    //
+    // Removing it is what stops the Notepad report being typed at the end of the
+    // take: the action writes that note only when this field is present. It also
+    // drops `expectsNoResponse`, so silence here is no longer excused -- see the
+    // handler in `actions/interrupt.action.ts`, which now says so in the log.
+    //
+    // `git log -S 'eventValue' -- autorecorder/config/pages.config.ts` brings
+    // the full text back if it turns out to be intermittent.
     id: 'interrupt-conditional',
     name: 'Generative UI - Your Components - Interrupt-based HITL (conditional)',
     videoName: 'ConditionalInterrupts',
@@ -177,32 +194,6 @@ export const PAGES = definePages([
     extraTabs: [{ filePath: 'backend/src/interruptBased.ts', startLine: 45, endLine: 66 }],
     prompt: 'Hello, can you help me with something?',
     waitAfterPromptMs: 5000,
-    knownIssue: {
-      area: 'Deep Agents - Generative UI - Your Components - Interrupt-based HITL (Condition UI executions)',
-      problem:
-        "The page's `enabled` callback destructures `eventValue`, which no longer exists on " +
-        '`InterruptEvent` — it is `{ name, value }`. At runtime the destructure yields ' +
-        '`undefined`, reading `.type` on it throws, and neither registration ever claims the ' +
-        'event, so no approval or question card is drawn. `event.value` also arrives as a JSON ' +
-        'string rather than the object the agent passed, so `event.value.content` is undefined.',
-      impact:
-        'Conditional interrupt UI cannot be built from this section as printed. The run stops at ' +
-        'the interrupt with nothing on screen to answer it, so the agent never resumes.',
-      likelyCause:
-        "The snippet predates the `InterruptEvent` shape it is typed against: `enabled` receives " +
-        'the whole event. In TypeScript this is a compile error, which is why each line in the ' +
-        'harness carries `@ts-expect-error` — delete one and `tsc` reports TS2339.',
-      note: [
-        'conditional interrupts tab - no card renders',
-        '',
-        'asked the agent for something, run stops at the interrupt',
-        'nothing to answer it with. no approve/reject, no question box',
-        '',
-        'enabled({ eventValue }) - there is no eventValue on the event,',
-        'so it throws before either handler can claim it',
-      ].join('\n'),
-      expectsNoResponse: true,
-    },
   },
 
   // -- App Control -------------------------------------------------------------
@@ -228,11 +219,37 @@ export const PAGES = definePages([
     docPath: 'shared-state/in-app-agent-read',
     route: 'shared-state/in-app-agent-read',
     ideFile: 'frontend/src/app/shared-state/in-app-agent-read/demo-chat/page.tsx',
-    startLine: 9,
-    endLine: 38,
+    startLine: 10,
+    endLine: 39,
     extraTabs: [{ filePath: 'backend/src/sharedState.ts', startLine: 34, endLine: 63 }],
     prompt: 'Set the language to Spanish.',
     waitAfterPromptMs: 4000,
+    // Reproduced here on 04 Sep 2026, the same way the Python sibling files it.
+    // The 04-Sep clip has the agent answering "El idioma se ha establecido en
+    // espanol." beside a panel still reading `Language: english`, and the raw
+    // `agent.state` under it still carrying `"language": "english"`. It had been
+    // recorded as a [PASS] because nothing in the take asserted the panel.
+    knownIssue: {
+      area: 'Deep Agents - Shared State - Reading agent state',
+      problem:
+        'The agent switches to Spanish when asked, but the `language` value shown in the app ' +
+        'never updates -- the panel stays on its previous value while the chat answers in Spanish.',
+      impact:
+        'State written by the agent cannot be read back in the app, so no UI can reflect what ' +
+        'the agent is currently doing.',
+      likelyCause:
+        'The state delta is not reaching the frontend `useAgent` subscription, so `agent.state` ' +
+        'never carries the value the agent is acting on.',
+      note: [
+        'reading agent state - ui never updates',
+        '',
+        'told it to set language to spanish',
+        'it answers in spanish so the agent got it',
+        '',
+        'but the language field on the left never changes,',
+        'and the raw agent.state under it still says english',
+      ].join('\n'),
+    },
   },
   {
     id: 'in-app-agent-write',
@@ -241,8 +258,8 @@ export const PAGES = definePages([
     docPath: 'shared-state/in-app-agent-write',
     route: 'shared-state/in-app-agent-write',
     ideFile: 'frontend/src/app/shared-state/in-app-agent-write/demo-chat/page.tsx',
-    startLine: 9,
-    endLine: 54,
+    startLine: 10,
+    endLine: 55,
     extraTabs: [{ filePath: 'backend/src/sharedState.ts', startLine: 34, endLine: 63 }],
     prompt: 'Tell me one interesting fact about Karachi.',
     waitAfterPromptMs: 4500,
@@ -278,11 +295,37 @@ export const PAGES = definePages([
     docPath: 'shared-state/predictive-state-updates?agent-type=prebuilt',
     route: 'shared-state/predictive-state-updates',
     ideFile: 'frontend/src/app/shared-state/predictive-state-updates/demo-chat/page.tsx',
-    startLine: 31,
-    endLine: 76,
+    startLine: 32,
+    endLine: 77,
     extraTabs: [{ filePath: 'backend/src/predictiveState.ts', startLine: 29, endLine: 62 }],
     prompt: 'Plan a three-step research task about solar panel recycling and report each step.',
     waitAfterPromptMs: 5000,
+    // The same finding the Python sibling files against this tab, reproduced
+    // here on 04 Sep 2026: the 04-Sep clip answers with a full three-step plan
+    // beside an "Agent Progress" panel that reads "Empty. Give the agent a
+    // multi-step task." for the whole run. It had been recorded as a [PASS]
+    // because nothing in the take asserted the panel, which is what the
+    // `knownIssue` and the longer dwell in the handler now fix.
+    knownIssue: {
+      area: 'Deep Agents - Shared State - Predictive State Updates (prebuilt agent)',
+      problem:
+        'No agent progress appears in the app. The steps list stays empty for the whole run ' +
+        'while the chat answers normally.',
+      impact:
+        'Agent progress cannot be shown in real time, which is the entire purpose of this page.',
+      likelyCause:
+        'The streamed state never reaches the UI variables, so `observedSteps` stays empty in ' +
+        '`agent.state` even though the tool call carrying it completes.',
+      note: [
+        'predictive state - prebuilt renders no steps',
+        '',
+        'asked for a multi step task on the prebuilt tab',
+        'agent progress stayed empty the whole run',
+        '',
+        'chat answered fine so the agent ran, the steps just never reach the panel',
+        'switched to custom graph - manual after and the same ask fills all four rows',
+      ].join('\n'),
+    },
   },
   {
     // Same doc page, `agent-type=custom-graph`, first of its two variants. The
@@ -299,8 +342,8 @@ export const PAGES = definePages([
     extraTabs: [
       {
         filePath: 'frontend/src/app/shared-state/predictive-state-updates/demo-chat/page.tsx',
-        startLine: 31,
-        endLine: 76,
+        startLine: 32,
+        endLine: 77,
       },
     ],
     prompt: 'Plan a three-step research task about solar panel recycling and report each step.',

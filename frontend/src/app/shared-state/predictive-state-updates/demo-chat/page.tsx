@@ -4,6 +4,7 @@ import { CopilotChat, useAgent } from "@copilotkit/react-core/v2";
 import { useState } from "react";
 
 import { DemoFrame } from "@/components/demo-frame";
+import { QaNote } from "@/components/qa-note";
 
 const VARIANTS = [
   {
@@ -85,6 +86,11 @@ export default function Page() {
       subtitle={`graph: ${variant.agentId}`}
     >
       <div className="flex h-full flex-col">
+        <QaNote
+          try="On Prebuilt agent, ask for a multi-step task. Then try the same on Custom graph."
+          expected="Agent Progress fills with one row per step while the agent works."
+          actual="Prebuilt renders no steps at all. The custom graphs do."
+        />
         <div className="shrink-0 border-b border-slate-200 px-4 py-2 dark:border-slate-800">
           <div className="flex flex-wrap gap-2">
             {VARIANTS.map((v) => (

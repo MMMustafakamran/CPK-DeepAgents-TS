@@ -3,6 +3,7 @@
 import { CopilotChat, useAgent } from "@copilotkit/react-core/v2";
 
 import { DemoFrame } from "@/components/demo-frame";
+import { QaNote } from "@/components/qa-note";
 
 const AGENT_ID = "shared_state_agent";
 
@@ -59,10 +60,17 @@ export default function Page() {
       parentPath="/shared-state/in-app-agent-write"
       subtitle={`graph: ${AGENT_ID}`}
     >
-      <div className="grid h-full grid-cols-1 md:grid-cols-2">
-        <YourMainContent />
-        <div className="min-h-0 border-t border-slate-200 md:border-l md:border-t-0 dark:border-slate-800">
-          <CopilotChat agentId={AGENT_ID} className="h-full" />
+      <div className="flex h-full flex-col">
+        <QaNote
+          try="Press Toggle Language, then send any message."
+          expected="The agent replies in the language shown on the left."
+          actual="The label flips to spanish and the agent keeps replying in English."
+        />
+        <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-2">
+          <YourMainContent />
+          <div className="min-h-0 border-t border-slate-200 md:border-l md:border-t-0 dark:border-slate-800">
+            <CopilotChat agentId={AGENT_ID} className="h-full" />
+          </div>
         </div>
       </div>
     </DemoFrame>

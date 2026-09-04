@@ -212,12 +212,12 @@ Where a `threadId` comes from, and how switching differs from starting fresh. `s
 *Pass:* three rows appear at once, all ⏳, then flip to ✅ one per second, and stay after the reply. Verified on the wire: four distinct `searches` states arrive in order.
 *Fail:* rows that appear then vanish — the emitted state was never returned by the node.
 
-**`/generative-ui/your-components/interrupt-based`** → `interrupt_agent`, `interrupt_multi_agent` ⚠️
-LangGraph `interrupt()` in a `createMiddleware` `beforeModel` hook, answered by `useInterrupt`. Two tabs: one interrupt, and two dispatched by `type` via `enabled`. Both are the page's code **as printed** — the second one does not work, and demonstrating that is the point.
+**`/generative-ui/your-components/interrupt-based`** → `interrupt_agent`, `interrupt_multi_agent`
+LangGraph `interrupt()` in a `createMiddleware` `beforeModel` hook, answered by `useInterrupt`. Two tabs: one interrupt, and two dispatched by `type` via `enabled`. Both are the page's code **as printed**.
 *Try:* send `Hello`.
-*Pass:* on **One interrupt**, the first message is answered with a name form rather than a reply; submit a name and the run resumes using it. That half of the page is correct.
-*Expected failure:* on **Two, dispatched by type**, no card appears at all — the `enabled` predicates throw on `eventValue`, so neither handler claims the event.
-*Real failure:* the *first* tab not working — check the agent server is up.
+*Pass:* on **One interrupt**, the first message is answered with a name form rather than a reply; submit a name and the run resumes using it. On **Two, dispatched by type**, one of the two registrations claims the event and draws its card — the approval pair or the question box.
+*Was an expected failure until 04 Sep 2026:* the conditional tab drawing no card at all, the `enabled` predicates throwing on `eventValue` before either handler could claim the event. That finding has been withdrawn; the `@ts-expect-error` annotations stay, because the *type* error behind it has not moved (§9 item 6).
+*Real failure:* either tab drawing no card — check the agent server is up, then re-read §9 item 6.
 
 ### App Control
 
@@ -274,20 +274,20 @@ Verified 2026-08-06 by driving every graph through the real `CopilotRuntime` rou
 | [threads-lifecycle](https://docs.copilotkit.ai/deepagents/threads-lifecycle) | `/threads-lifecycle` | `sample_agent` | ✅ Working | Switch/start are live regardless; replay needs a server-side store |
 | [generative-ui/tool-rendering](https://docs.copilotkit.ai/deepagents/generative-ui/tool-rendering) | `/generative-ui/tool-rendering` | `tool_rendering_agent` | ✅ Working | `useDefaultRenderTool` destructures a prop that doesn't exist |
 | [generative-ui/state-rendering](https://docs.copilotkit.ai/deepagents/generative-ui/state-rendering) | `/generative-ui/state-rendering` | `state_rendering_agent` | ✅ Working | Emit loop's caller is not shown by the page |
-| [.../your-components/interrupt-based](https://docs.copilotkit.ai/deepagents/generative-ui/your-components/interrupt-based) | `/generative-ui/your-components/interrupt-based` | `interrupt_agent`, `interrupt_multi_agent` | ⚠️ Partial | Single tab works; conditional tab left as printed and does not; the new state-note section is reproduced and does not build its note (item 2) |
+| [.../your-components/interrupt-based](https://docs.copilotkit.ai/deepagents/generative-ui/your-components/interrupt-based) | `/generative-ui/your-components/interrupt-based` | `interrupt_agent`, `interrupt_multi_agent` | ✅ Working | Both tabs left as printed; the conditional finding was withdrawn 04 Sep 2026, the TS2339 behind it stands (item 6) |
 | [frontend-tools](https://docs.copilotkit.ai/deepagents/frontend-tools) | `/frontend-tools` | `frontend_tools_agent` | ✅ Working | Page's TS is a comment; state field missing `zodState` |
 | [webmcp](https://docs.copilotkit.ai/deepagents/webmcp) | `/webmcp` | — | 🚧 Not started | Tracked for drift. Needs Chrome 149+ and the WebMCP origin trial |
 | [human-in-the-loop/governed-actions](https://docs.copilotkit.ai/deepagents/human-in-the-loop/governed-actions) | `/human-in-the-loop/governed-actions` | — | 🚧 Not started | Tracked for drift. Same bytes under all five prefixes; built in Agno-react and Mastra-react |
-| [shared-state/in-app-agent-read](https://docs.copilotkit.ai/deepagents/shared-state/in-app-agent-read) | `/shared-state/in-app-agent-read` | `shared_state_agent` | ✅ Working | `zodState` default really applies in TS (unlike Python) |
+| [shared-state/in-app-agent-read](https://docs.copilotkit.ai/deepagents/shared-state/in-app-agent-read) | `/shared-state/in-app-agent-read` | `shared_state_agent` | ⚠️ Partial | Agent switches language and says so; the panel and raw `agent.state` never follow (item 6b) |
 | [shared-state/in-app-agent-write](https://docs.copilotkit.ai/deepagents/shared-state/in-app-agent-write) | `/shared-state/in-app-agent-write` | `shared_state_agent` | ⚠️ Partial | Write round-trips; model never sees it; `exposeState` can't reach it |
-| [...?agent-type=prebuilt](https://docs.copilotkit.ai/deepagents/shared-state/predictive-state-updates?agent-type=prebuilt) | `/shared-state/predictive-state-updates` | `predictive_state_agent` | ✅ Working | `stateStreamingMiddleware` + `stateItem` |
+| [...?agent-type=prebuilt](https://docs.copilotkit.ai/deepagents/shared-state/predictive-state-updates?agent-type=prebuilt) | `/shared-state/predictive-state-updates` | `predictive_state_agent` | ⚠️ Partial | `stateStreamingMiddleware` + `stateItem`; Agent Progress stays empty for the whole run (item 6c) |
 | [...&state-emission=manual-emission](https://docs.copilotkit.ai/deepagents/shared-state/predictive-state-updates?agent-type=custom-graph&state-emission=manual-emission) | same route, tab 2 | `predictive_manual_graph` | ✅ Working | **Live** — the TS tab prints the whole graph |
 | [...&state-emission=tool-emission](https://docs.copilotkit.ai/deepagents/shared-state/predictive-state-updates?agent-type=custom-graph&state-emission=tool-emission) | same route, tab 3 | `predictive_tool_graph` | ✅ Working | **Live** — ditto; `shouldContinue as any` replaced |
 | [shared-state/state-inputs-outputs](https://docs.copilotkit.ai/deepagents/shared-state/state-inputs-outputs) | `/shared-state/state-inputs-outputs` | — | 📄 Reference | Graph filters correctly; JS dev server ignores `output`, so nothing to show live |
 | [shared-state/workflow-execution](https://docs.copilotkit.ai/deepagents/shared-state/workflow-execution) | `/shared-state/workflow-execution` | — | 📄 Reference | Upstream duplicate of the page above; nothing of its own to implement |
 | [intelligence/quickstart](https://docs.copilotkit.ai/deepagents/intelligence/quickstart) | `/intelligence/quickstart` | — | 🚧 Not started | Tracked for drift. Needs a hosted Intelligence project and `CPK_INTELLIGENCE_API_KEY` |
 
-**Totals:** 11 ✅ Working · 2 ⚠️ Partial · 2 📄 Reference (Input/Output Schemas, Workflow Execution) · 0 ❌ Broken · 3 🚧 Not started.
+**Totals:** 10 ✅ Working · 3 ⚠️ Partial · 2 📄 Reference (Input/Output Schemas, Workflow Execution) · 0 ❌ Broken · 3 🚧 Not started.
 
 **Tracked without a demo.** The three 🚧 rows carry a route, a nav entry and a snapshot so drift is watched, but nothing is implemented behind them and the recorder does not touch them. The reason is on each route’s page and in §7. The rest of `/deepagents/intelligence/` is the old `/deepagents/premium/` set under a new prefix and stays in `doc-snapshot/manifest.json`’s `knownUnmapped` list.
 
@@ -332,6 +332,15 @@ Not stated on any page, and the worst failure mode here because it is completely
 
 **6. `enabled` has no `eventValue`, and `event.value` is a string.**
 [interrupt-based](https://docs.copilotkit.ai/deepagents/generative-ui/your-components/interrupt-based)'s "Condition UI executions" section writes `enabled: ({ eventValue }) => …`. The parameter is typed `InterruptEvent<TValue>` — `{ name, value }` — so this is a hard `TS2339` compile error in TypeScript (the Python repo only finds it at runtime). Separately, a LangGraph `interrupt()` reaches the browser as the legacy `on_interrupt` custom event with its value **serialised**, so `event.value.type` is `undefined` on a string. **Both are left in the demo unedited**, with a `@ts-expect-error` on each `enabled` line so the repo still builds — and those annotations are the evidence rather than a patch, since an unused one is itself an error (`TS2578`). The page's *first* section is fine.
+The **runtime** half of this was withdrawn on 04 Sep 2026 on a report that the conditional tab now draws its card, and the recorder entry no longer carries a `knownIssue` — so that take reports `[PASS]` and types no Notepad note. The **compile** half stands unchanged and is checkable without running anything: `tsc` still passes only because both `@ts-expect-error` lines are still being consumed. Delete one and TS2339 comes back.
+
+**6b. Agent state written by the agent never reaches `useAgent`.**
+[in-app-agent-read](https://docs.copilotkit.ai/deepagents/shared-state/in-app-agent-read)'s whole claim is that the app can read what the agent is doing. Ask the demo to set the language to Spanish and the agent does — it answers `El idioma se ha establecido en español.` — while the panel beside it still reads `Language: english` and the raw `agent.state` under it still carries `"language": "english"`. The state delta is not reaching the frontend subscription, so no UI can reflect what the agent is currently doing. Reproduced 04 Sep 2026; the Python sibling files this identically.
+→ `/shared-state/in-app-agent-read` is ⚠️ Partial as a result.
+
+**6c. The prebuilt Predictive State Updates tab renders no steps.**
+On [predictive-state-updates](https://docs.copilotkit.ai/deepagents/shared-state/predictive-state-updates?agent-type=prebuilt), ask for a multi-step task: the chat answers with a complete three-step plan while `Agent Progress` reads *"Empty. Give the agent a multi-step task."* from the first frame to the last. The streamed state never reaches the UI variables, so `observedSteps` stays empty in `agent.state` even though the tool call carrying it completes. Showing progress in real time is the entire purpose of the page. The two custom-graph tabs on the same route fill all four rows from the same prompt, which is what rules out the graph and the model. Reproduced 04 Sep 2026; the Python sibling files this identically.
+→ `/shared-state/predictive-state-updates` drops to ⚠️ Partial: prebuilt broken, both custom graphs working.
 
 **7. `useDefaultRenderTool` render props have no `args`.**
 [tool-rendering](https://docs.copilotkit.ai/deepagents/generative-ui/tool-rendering) destructures `{ name, args, status, result }`. The prop is `parameters` — as it is in the page's own `useRenderTool` snippet directly above. Reading `args` returns `undefined`, silently.
@@ -451,8 +460,10 @@ three are deliberate — see §8.
 **`[ISSUE]` is not `[FAIL]`.** A page with a `knownIssue` in
 `autorecorder/config/pages.config.ts` is *expected* to misbehave: the take
 records the misbehaviour, types the finding into an on-screen Notepad, reports
-`[ISSUE]` and exits 0. Two pages are on that list here — the conditional
-interrupt tab and Writing agent state, both in [§9](#9-known-issues--docvsimplementation-discrepancies).
+`[ISSUE]` and exits 0. Three pages are on that list here — Reading agent state,
+Writing agent state, and the prebuilt tab of Predictive State Updates, all in
+[§9](#9-known-issues--docvsimplementation-discrepancies). The conditional
+interrupt tab was the fourth until 04 Sep 2026.
 A route that 404s or a demo that renders no chat is still a `[FAIL]`: those are
 breaks in this repo rather than in the thing under test.
 
@@ -466,10 +477,14 @@ port and three files move together: `ci/lib/config.mjs`,
 repo plus `npm run record` — and a few re-records of fourteen clips would put
 hundreds of megabytes into `.git`. Publish them as release assets instead.
 
-**Narration is parked.** `autorecorder/audio/` pairs an `.m4a` to a clip by
-filename. Every track this repo inherited was recorded against the Python
-sibling's findings, three of which do not hold here, so all of them sit in
-`audio/on-hold/` where nothing scans them. Re-record before promoting one.
+**Narration.** `autorecorder/audio/` pairs an `.m4a` to a clip by filename, and
+three tracks are live — one per page on the `[ISSUE]` list above. Two came from
+the Python sibling and were parked while this repo's clips were thought to show
+something else; the 04 Sep 2026 footage reproduces both findings exactly as that
+repo files them, so the commentary matches the video and they are back in play.
+Reading agent state carries this repo's own re-recording. `InterruptBased.m4a`
+stays in `audio/on-hold/`, where nothing scans it: it narrates a finding neither
+tab of that page carries any more. Re-record before promoting one.
 
 ---
 
@@ -500,7 +515,7 @@ deepagents-ts/
 │   ├── config/                       ← the whole adaptation surface: project, pages, selectors
 │   ├── actions/                      what to do on a page that needs more than a prompt
 │   ├── core/                         frozen: engine, IDE simulator, cursor, doctor
-│   └── audio/on-hold/                narration, parked — see audio/README.md
+│   └── audio/                        narration, 3 live + 1 parked — see audio/README.md
 │
 ├── backend/                          TypeScript — the agents
 │   ├── package.json                  deps + @langchain/langgraph-cli; zod pinned to v3

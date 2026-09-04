@@ -14,10 +14,15 @@ import { type PageActionHandler, type PageRecordConfig } from '../core/types';
  * one graph into a video filed against another, which is how one clip ends up
  * carrying two findings and being usable for neither.
  *
- * All three work in this repo, unlike the Python sibling — the TypeScript tabs
- * print the two custom graphs in full, so there is nothing left to infer and
- * nothing here reproduces a defect. The takes exist to show the steps filling
- * in, which is the behaviour the page is about.
+ * The two custom graphs work here, unlike the Python sibling — the TypeScript
+ * tabs print both in full, so there is nothing left to infer and their takes
+ * exist to show the steps filling in, which is the behaviour the page is about.
+ *
+ * The prebuilt tab does not, and it fails exactly the way the Python one does:
+ * the chat answers with a complete multi-step plan while `Agent Progress` reads
+ * "Empty. Give the agent a multi-step task." from the first frame to the last.
+ * That take is evidence, so it is driven differently from the other two — see
+ * `runPredictivePrebuiltAction`.
  */
 
 const TABS = {
@@ -70,15 +75,18 @@ async function runVariant(
   config: PageRecordConfig,
   key: VariantKey,
   startTimeoutMs = 30000,
-  waitForStepsMs = 45000,
+  waitForStepsMs = 0,
 ): Promise<void> {
   await selectVariant(page, key);
 
   const msgCount = await sendPrompt(page, config.prompt, { timeoutMs: 12000 });
 
-  // The steps are the evidence on every variant here, so the take waits for the
-  // first row rather than for the reply: on the custom graphs the rows are
-  // emitted a second apart well before anything is said.
+  // On the custom graphs the steps are the evidence, and they are emitted a
+  // second apart well before anything is said -- so those takes wait for the
+  // first row rather than for the reply.
+  //
+  // Not done on `prebuilt`: its finding is that no step ever appears, so a wait
+  // there buys 45s of dead video to prove what an empty panel already says.
   if (waitForStepsMs > 0) {
     const appeared = await page
       .locator('h3:has-text("Steps"), ul li')
@@ -96,8 +104,8 @@ async function runVariant(
   // Mid-stream is the only moment the steps are interesting: this is when rows
   // should be filling in. Waiting for the reply first and looking afterwards
   // shows the aftermath rather than the behaviour.
-  await sleep(600);
-  await restOnSteps(page, 2400);
+  await sleep(waitForStepsMs > 0 ? 600 : 2200);
+  await restOnSteps(page, 2200);
 
   await waitForAgentResponseCompletion(
     page,
@@ -108,10 +116,6 @@ async function runVariant(
   );
 
   await restOnSteps(page, 2600);
-
-  if (config.knownIssue) {
-    await writeIssueNote(page, config.id, config.knownIssue);
-  }
 }
 
 /**
@@ -123,14 +127,60 @@ async function runVariant(
  */
 const CUSTOM_GRAPH_START_TIMEOUT_MS = 90000;
 
+/**
+ * Prebuilt agent -- its own tab, start to finish. Nothing else is driven.
+ *
+ * The take used to switch to the manual tab afterwards and ask the identical
+ * question, so the steps filling in on one tab beside an empty panel on the
+ * other made the absence legible. That is not done: a run of the manual graph
+ * inside a video filed against the prebuilt one is a clip that carries two
+ * findings and can be filed against neither. The manual variant is recorded
+ * separately and can be watched beside this one.
+ *
+ * What replaces it is a long, deliberate look at the panel that should have
+ * filled in and did not, and a row count in the log so the run says in words
+ * what the video shows.
+ */
 export const runPredictivePrebuiltAction: PageActionHandler = async (page, config) => {
   await runVariant(page, config, 'prebuilt');
+
+  // The panel's own empty state, not a bare `ul li` count. The reply on this
+  // tab is a multi-step plan and the chat renders it as nested markdown lists,
+  // so counting every list item on the page reports rows that belong to the
+  // answer rather than to Agent Progress -- which reads as the defect having
+  // been fixed on precisely the runs where it reproduced.
+  const stillEmpty = await page
+    .locator('p:has-text("Empty. Give the agent a multi-step task.")')
+    .first()
+    .isVisible()
+    .catch(() => false);
+  const rows = await page
+    .locator('h3:has-text("Steps") + ul li')
+    .count()
+    .catch(() => 0);
+
+  if (stillEmpty && rows === 0) {
+    console.log(
+      `   🐞 [Predictive prebuilt] Agent Progress is still empty after the reply -- as reported.`,
+    );
+  } else {
+    console.warn(
+      `   ⚠️ [Predictive prebuilt] ${rows} step row(s) rendered -- the documented defect did ` +
+        `not reproduce. Check whether it has been fixed before filing it again.`,
+    );
+  }
+
+  await restOnSteps(page, 5200);
+
+  if (config.knownIssue) {
+    await writeIssueNote(page, config.id, config.knownIssue);
+  }
 };
 
 export const runPredictiveManualAction: PageActionHandler = async (page, config) => {
-  await runVariant(page, config, 'manual', CUSTOM_GRAPH_START_TIMEOUT_MS);
+  await runVariant(page, config, 'manual', CUSTOM_GRAPH_START_TIMEOUT_MS, 45000);
 };
 
 export const runPredictiveToolAction: PageActionHandler = async (page, config) => {
-  await runVariant(page, config, 'tool', CUSTOM_GRAPH_START_TIMEOUT_MS);
+  await runVariant(page, config, 'tool', CUSTOM_GRAPH_START_TIMEOUT_MS, 45000);
 };

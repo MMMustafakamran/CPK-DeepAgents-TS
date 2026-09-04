@@ -10,12 +10,17 @@ import { type PageActionHandler, type PageRecordConfig } from '../core/types';
  * The first tab is the page's Implementation section verbatim: one
  * `useInterrupt`, no `enabled`. It works, and the take films it working.
  *
- * The second is the page's "Condition UI executions" section, also verbatim,
- * and it does not: `enabled` destructures an `eventValue` that no longer exists
- * on the event, so neither registration claims the interrupt and no card is
- * drawn. That take films an absence, which is why it is recorded separately —
- * a clip carrying a working interrupt and a broken one is a clip nobody can
- * file against either.
+ * The second is the page's "Condition UI executions" section, also verbatim.
+ * It carried a `knownIssue` until 04 Sep 2026 — `enabled` destructures an
+ * `eventValue` that no longer exists on the event, so neither registration
+ * claimed the interrupt and no card was drawn — and that entry has been removed
+ * on a report that the tab now behaves. The take below therefore no longer
+ * writes a Notepad note; what it does instead is say plainly in the run log
+ * whether a card rendered, so a return of the old behaviour is not filed as a
+ * green clip.
+ *
+ * They stay two takes rather than one because one clip per doc section is what
+ * lets a reader open the footage for the section they are reading.
  */
 
 /** A name distinctive enough that the reply cannot be a coincidence. */
@@ -147,17 +152,18 @@ export const runInterruptSingleAction: PageActionHandler = async (
 };
 
 /**
- * Two registrations dispatched by `enabled`, and neither one fires.
+ * Two registrations dispatched by `enabled`.
  *
- * The take is short because the defect is: switch tab, ask, and watch the run
- * stop at an interrupt with nothing on screen to answer it. `expectsNoResponse`
- * on the page entry is what keeps that silence an `[ISSUE]` rather than a
- * recorder failure.
+ * Switch tab, ask, and answer whichever card the dispatch draws -- the approval
+ * pair or the question box, both of which the page renders from the same hook.
+ * The take is driven the same way the single-interrupt one is, because that is
+ * what a reader following the section would do.
  *
- * `AgentSilentError` is caught rather than allowed to propagate: the engine
- * reports `[ISSUE]` either way, but an exception escaping here would skip the
- * Notepad note, and a defect take that does not write its own report is half a
- * take.
+ * `AgentSilentError` is caught rather than allowed to propagate. This entry no
+ * longer carries `knownIssue.expectsNoResponse`, so an escaping exception would
+ * fail the take and lose the clip; catching it keeps the footage and puts the
+ * fact in the log, where a run that goes quiet again is legible as a return of
+ * the removed finding rather than as a recorder fault.
  */
 export const runInterruptConditionalAction: PageActionHandler = async (
   page: Page,
@@ -168,27 +174,51 @@ export const runInterruptConditionalAction: PageActionHandler = async (
   console.log(`   [Interrupt conditional] Prompting to raise the dispatched interrupt...`);
   const msgCount = await sendPrompt(page, config.prompt, { timeoutMs: 12000 });
 
-  try {
-    await waitForAgentResponseCompletion(page, config.waitAfterPromptMs ?? 5000, msgCount);
+  // Whichever registration claims the event: the approval pair renders a button,
+  // the question box renders the same `response` field the single tab uses.
+  const card = page
+    .locator('button:has-text("Approve"), input[name="response"]')
+    .first();
+  const rendered = await card
+    .waitFor({ state: 'visible', timeout: 30000 })
+    .then(() => true)
+    .catch(() => false);
+
+  if (rendered) {
+    const isApproval = await page
+      .locator('button:has-text("Approve")')
+      .first()
+      .isVisible()
+      .catch(() => false);
+
+    if (isApproval) {
+      const box = await page.locator('button:has-text("Approve")').first().boundingBox();
+      if (box) {
+        await humanGlide(page, box.x + box.width / 2, box.y + box.height / 2, 20);
+        await sleep(400);
+        await humanClick(page);
+      }
+      await page.locator('button:has-text("Approve")').first().click({ timeout: 4000 }).catch(() => {});
+      console.log(`   ✓ Approved the interrupt.`);
+    } else {
+      await answerInterrupt(page, AGENT_NAME);
+    }
+  } else {
     console.warn(
-      `   ⚠️ [Interrupt conditional] The agent replied -- the documented defect did not ` +
-        `reproduce. Check whether it has been fixed before filing it again.`,
+      `   ⚠️ [Interrupt conditional] No card rendered in 30s. This is the behaviour the ` +
+        `removed \`knownIssue\` described -- neither registration claiming the event -- so ` +
+        `check the tab by hand before trusting this clip as a pass.`,
     );
-  } catch (e) {
-    if (!(e instanceof AgentSilentError)) throw e;
-    console.log(`   🐞 [Interrupt conditional] Run stopped at the interrupt, no card -- as reported.`);
   }
 
-  // The absence, stated: no approve/reject pair, no question box. Counted so
-  // the run log says so in words as well as showing an empty chat on video.
-  const cards = await page
-    .locator('h1:has-text("Do you approve?"), input[name="response"]')
-    .count();
-  console.log(
-    cards === 0
-      ? `   🐞 [Interrupt conditional] Neither handler claimed the event: no card rendered.`
-      : `   ⚠️ [Interrupt conditional] ${cards} interrupt card(s) rendered -- unexpected.`,
-  );
+  try {
+    await waitForAgentResponseCompletion(page, config.waitAfterPromptMs ?? 5000, msgCount);
+  } catch (e) {
+    if (!(e instanceof AgentSilentError)) throw e;
+    console.warn(
+      `   ⚠️ [Interrupt conditional] The agent never answered. The clip shows an empty chat.`,
+    );
+  }
 
   await sleep(2500);
 

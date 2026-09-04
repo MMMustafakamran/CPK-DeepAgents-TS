@@ -154,9 +154,9 @@ export const NAV: NavGroup[] = [
         docPath: "/deepagents/generative-ui/your-components/interrupt-based",
         summary:
           "LangGraph interrupt() inside a createMiddleware beforeModel hook, answered in the browser by useInterrupt.",
-        status: "partial",
+        status: "working",
         statusNote:
-          "Single-interrupt tab works. The conditional tab is the page's code verbatim and does not — `enabled` has no `eventValue`.",
+          "Both tabs are the page's code verbatim. The conditional tab was ⚠️ Partial until 04 Sep 2026 on an `enabled` callback destructuring an `eventValue` the event does not carry; that finding has been withdrawn.",
       },
     ],
   },
@@ -205,7 +205,9 @@ export const NAV: NavGroup[] = [
         title: "Reading agent state",
         docPath: "/deepagents/shared-state/in-app-agent-read",
         summary: "Reading the agent's language field in your own UI through useAgent.",
-        status: "working",
+        status: "partial",
+        statusNote:
+          "The agent switches language and says so in Spanish, but the panel and the raw agent.state beside it stay on english — the delta never reaches the useAgent subscription.",
       },
       {
         path: "/shared-state/in-app-agent-write",
@@ -228,9 +230,9 @@ export const NAV: NavGroup[] = [
         docPath: "/deepagents/shared-state/predictive-state-updates?agent-type=prebuilt",
         summary:
           "All three of the page's variants running side by side: the prebuilt middleware, and both custom graphs.",
-        status: "working",
+        status: "partial",
         statusNote:
-          "All three are live here. The TypeScript tabs print the custom graphs in full, unlike the Python ones.",
+          "Both custom graphs work — the TypeScript tabs print them in full, unlike the Python ones. The prebuilt tab does not: the chat answers with a full multi-step plan while Agent Progress stays empty for the whole run.",
       },
       {
         path: "/shared-state/state-inputs-outputs",

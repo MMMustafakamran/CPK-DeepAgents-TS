@@ -5,20 +5,25 @@ import { humanClick, humanGlide, sleep } from '../core/overlays/cursor';
 import { type PageActionHandler, type PageRecordConfig } from '../core/types';
 
 /**
- * The two shared-state routes.
+ * The two shared-state routes. Both are broken, in opposite directions.
  *
- * Reading works here and is filmed as such. Writing does not: the toggle flips
- * the label and the raw state, the value ships with the next run, and the model
- * answers as though nothing happened. That second take is evidence, so the
- * route is left exactly as the doc prints it — nothing here should ever "just
- * fix" it.
+ * Reading: the agent is told to switch language and does -- it answers in
+ * Spanish -- while the panel and the raw `agent.state` beside it stay on
+ * english. The delta never reaches the `useAgent` subscription.
  *
- * The Python sibling records both halves of each finding against a paired
- * `/fixed` route. This repo has no such pair: the fix for the writing defect is
- * a change to how `exposeState` resolves a field owned by another middleware,
- * which is not a line a reader could add to the page's snippet, so a "fixed"
- * route here would be a different experiment rather than a comparison. The
- * clip shows the failure and the note says what is missing.
+ * Writing: the toggle flips the label and the raw state, the value ships with
+ * the next run, and the model answers as though nothing happened.
+ *
+ * Both takes are evidence, so both routes are left exactly as the doc prints
+ * them — nothing here should ever "just fix" one.
+ *
+ * The Python sibling records a second half for each finding against a paired
+ * `/fixed` route. This repo has no such pair: the fix is a change to how
+ * `exposeState` resolves a field owned by another middleware, which is not a
+ * line a reader could add to the page's snippet, so a "fixed" route here would
+ * be a different experiment rather than a comparison. The clip shows the
+ * failure, the `QaNote` on the route says what should have happened, and the
+ * note says what is missing.
  */
 
 /**
@@ -114,12 +119,12 @@ async function restOn(
 }
 
 /**
- * Reading agent state: the agent switches language and the app follows.
+ * Reading agent state: the agent switches language, the app never notices.
  *
  * Order matters. The prompt goes first and the reply is allowed to finish, so
- * that by the time the cursor reaches the left panel the state delta has landed
- * and the panel can be watched carrying the new value rather than waiting for
- * it.
+ * that by the time the cursor moves to the left panel the agent has visibly
+ * answered in Spanish -- the panel still reading its old value is only damning
+ * next to a reply that proves the agent changed.
  */
 export const runSharedStateReadAction: PageActionHandler = async (
   page: Page,
@@ -131,6 +136,24 @@ export const runSharedStateReadAction: PageActionHandler = async (
 
   await restOn(page, 'p:has-text("Language:")', 2400, 'Language panel');
   await restOn(page, 'pre', 2600, 'Raw agent.state');
+
+  const label =
+    (await page
+      .locator('p:has-text("Language:")')
+      .first()
+      .textContent()
+      .catch(() => null)) ?? '';
+  if (/spanish/i.test(label)) {
+    console.warn(
+      `   ⚠️ [Shared State Read] The panel followed the agent onto spanish -- the documented ` +
+        `defect did not reproduce. Check whether it has been fixed before filing it again.`,
+    );
+  } else {
+    console.log(
+      `   🐞 [Shared State Read] Panel still reads "${label.trim() || 'unknown'}" after a ` +
+        `Spanish reply -- as reported.`,
+    );
+  }
 
   await sleep(config.waitAfterPromptMs ?? 3000);
 
