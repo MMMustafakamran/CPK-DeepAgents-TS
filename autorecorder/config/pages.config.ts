@@ -156,7 +156,7 @@ export const PAGES = definePages([
       'frontend/src/app/generative-ui/your-components/interrupt-based/demo-chat/page.tsx',
     startLine: 11,
     endLine: 43,
-    extraTabs: [{ filePath: 'backend/src/interruptBased.ts', startLine: 24, endLine: 43 }],
+    extraTabs: [{ filePath: 'backend/src/interruptBased.ts', startLine: 45, endLine: 70 }],
     prompts: ['Hello, can you help me with something?', 'What should I call you?'],
     prompt: 'Hello, can you help me with something?',
     waitAfterPromptMs: 4000,
