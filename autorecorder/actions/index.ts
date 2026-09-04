@@ -23,6 +23,14 @@
  * Pass that returned count into waitForAgentResponseCompletion on multi-turn
  * pages, or the previous turn's reply is mistaken for this one's.
  *
+ * The fourth argument, `ctx`, is how a handler reports what it saw:
+ *
+ *   ctx.warn('the documented defect did not reproduce')  -> [PASS*]/[ISSUE] with the note
+ *   ctx.fail('Approve button never rendered')             -> [FAIL], clip still saved
+ *
+ * A `console.warn` reaches nobody: the summary, RECORD_RESULTS.json and the
+ * daily report only see what goes through `ctx`.
+ *
  * ── Handlers for pages that reproduce a defect ─────────────────────────────
  * Three pages here carry a `knownIssue` — both shared-state routes and the
  * prebuilt tab of Predictive State Updates — and their handlers have one extra
@@ -58,7 +66,7 @@
  * there.
  */
 
-import { type PageActionHandler, type PageRecordConfig } from '../core/types';
+import { type ActionContext, type PageActionHandler, type PageRecordConfig } from '../core/types';
 import { runStandardAction } from '../core/actions';
 import { type Page } from 'playwright';
 
@@ -105,7 +113,8 @@ export async function executePageAction(
   page: Page,
   config: PageRecordConfig,
   rootPath: string,
+  ctx: ActionContext,
 ): Promise<void> {
   const handler = ACTION_MAP[config.id] ?? runStandardAction;
-  await handler(page, config, rootPath);
+  await handler(page, config, rootPath, ctx);
 }

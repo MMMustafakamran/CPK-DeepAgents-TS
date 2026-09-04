@@ -32,8 +32,10 @@ export interface ConsoleCapture {
   stop: () => void;
 }
 
+// React's minified hydration-mismatch codes (418, 423, 425) are the same
+// "Hydration failed" noise in production builds; a dev route shows the text.
 const IGNORED =
-  /favicon\.ico|reo\.dev|analytics|webpack-hmr|\.map\b|Hydration failed|server rendered text|Download the React DevTools/i;
+  /favicon\.ico|reo\.dev|analytics|webpack-hmr|\.map\b|Hydration failed|server rendered text|Minified React error #4(18|23|25)\b|Download the React DevTools/i;
 
 function shorten(text: string, max = 260): string {
   const flat = text.replace(/\s+/g, ' ').trim();

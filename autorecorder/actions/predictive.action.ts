@@ -2,7 +2,7 @@ import { type Page } from 'playwright';
 import { sendPrompt, waitForAgentResponseCompletion } from '../core/actions';
 import { writeIssueNote } from '../core/issue-note';
 import { humanClick, humanGlide, sleep } from '../core/overlays/cursor';
-import { type PageActionHandler, type PageRecordConfig } from '../core/types';
+import { type ActionContext, type PageActionHandler, type PageRecordConfig } from '../core/types';
 
 /**
  * Predictive State Updates — three variants, one route.
@@ -34,12 +34,12 @@ const TABS = {
 type VariantKey = keyof typeof TABS;
 
 /** Clicks one of the variant tabs, with the cursor visibly travelling to it. */
-async function selectVariant(page: Page, key: VariantKey): Promise<void> {
+async function selectVariant(ctx: ActionContext, page: Page, key: VariantKey): Promise<void> {
   const label = TABS[key];
   const tab = page.locator(`button:has-text("${label}")`).first();
 
   if (!(await tab.isVisible({ timeout: 8000 }).catch(() => false))) {
-    console.warn(`   ⚠️ Variant tab "${label}" not found -- the demo page may have changed.`);
+    ctx.warn(`Variant tab "${label}" not found -- the demo page may have changed.`);
     return;
   }
 
@@ -71,13 +71,14 @@ async function restOnSteps(page: Page, dwellMs: number): Promise<void> {
 
 /** Drives one variant end to end: pick the tab, ask, watch the steps panel. */
 async function runVariant(
+  ctx: ActionContext,
   page: Page,
   config: PageRecordConfig,
   key: VariantKey,
   startTimeoutMs = 30000,
   waitForStepsMs = 0,
 ): Promise<void> {
-  await selectVariant(page, key);
+  await selectVariant(ctx, page, key);
 
   const msgCount = await sendPrompt(page, config.prompt, { timeoutMs: 12000 });
 
@@ -112,7 +113,7 @@ async function runVariant(
     config.waitAfterPromptMs ?? 4000,
     msgCount,
     undefined,
-    startTimeoutMs,
+    { startTimeoutMs },
   );
 
   await restOnSteps(page, 2600);
@@ -141,8 +142,8 @@ const CUSTOM_GRAPH_START_TIMEOUT_MS = 90000;
  * filled in and did not, and a row count in the log so the run says in words
  * what the video shows.
  */
-export const runPredictivePrebuiltAction: PageActionHandler = async (page, config) => {
-  await runVariant(page, config, 'prebuilt');
+export const runPredictivePrebuiltAction: PageActionHandler = async (page, config, _rootPath, ctx) => {
+  await runVariant(ctx, page, config, 'prebuilt');
 
   // The panel's own empty state, not a bare `ul li` count. The reply on this
   // tab is a multi-step plan and the chat renders it as nested markdown lists,
@@ -164,8 +165,7 @@ export const runPredictivePrebuiltAction: PageActionHandler = async (page, confi
       `   🐞 [Predictive prebuilt] Agent Progress is still empty after the reply -- as reported.`,
     );
   } else {
-    console.warn(
-      `   ⚠️ [Predictive prebuilt] ${rows} step row(s) rendered -- the documented defect did ` +
+    ctx.warn(`[Predictive prebuilt] ${rows} step row(s) rendered -- the documented defect did ` +
         `not reproduce. Check whether it has been fixed before filing it again.`,
     );
   }
@@ -177,10 +177,10 @@ export const runPredictivePrebuiltAction: PageActionHandler = async (page, confi
   }
 };
 
-export const runPredictiveManualAction: PageActionHandler = async (page, config) => {
-  await runVariant(page, config, 'manual', CUSTOM_GRAPH_START_TIMEOUT_MS, 45000);
+export const runPredictiveManualAction: PageActionHandler = async (page, config, _rootPath, ctx) => {
+  await runVariant(ctx, page, config, 'manual', CUSTOM_GRAPH_START_TIMEOUT_MS, 45000);
 };
 
-export const runPredictiveToolAction: PageActionHandler = async (page, config) => {
-  await runVariant(page, config, 'tool', CUSTOM_GRAPH_START_TIMEOUT_MS, 45000);
+export const runPredictiveToolAction: PageActionHandler = async (page, config, _rootPath, ctx) => {
+  await runVariant(ctx, page, config, 'tool', CUSTOM_GRAPH_START_TIMEOUT_MS, 45000);
 };

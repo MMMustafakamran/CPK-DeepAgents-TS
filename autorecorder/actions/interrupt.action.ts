@@ -2,7 +2,7 @@ import { type Page } from 'playwright';
 import { AgentSilentError, promptsFor, sendPrompt, waitForAgentResponseCompletion } from '../core/actions';
 import { writeIssueNote } from '../core/issue-note';
 import { humanClick, humanGlide, sleep } from '../core/overlays/cursor';
-import { type PageActionHandler, type PageRecordConfig } from '../core/types';
+import { type ActionContext, type PageActionHandler, type PageRecordConfig } from '../core/types';
 
 /**
  * Interrupt-based HITL — one doc page, two tabs, two different outcomes.
@@ -32,12 +32,12 @@ const TABS = {
 } as const;
 
 /** Clicks one of the variant tabs, with the cursor visibly travelling to it. */
-async function selectTab(page: Page, key: keyof typeof TABS): Promise<void> {
+async function selectTab(ctx: ActionContext, page: Page, key: keyof typeof TABS): Promise<void> {
   const label = TABS[key];
   const tab = page.locator(`button:has-text("${label}")`).first();
 
   if (!(await tab.isVisible({ timeout: 8000 }).catch(() => false))) {
-    console.warn(`   ⚠️ Tab "${label}" not found -- the demo page may have changed.`);
+    ctx.warn(`Tab "${label}" not found -- the demo page may have changed.`);
     return;
   }
 
@@ -62,7 +62,7 @@ async function selectTab(page: Page, key: keyof typeof TABS): Promise<void> {
  * than through the chat selectors, which do not match a component rendered
  * inside an interrupt.
  */
-async function answerInterrupt(page: Page, answer: string): Promise<boolean> {
+async function answerInterrupt(ctx: ActionContext, page: Page, answer: string): Promise<boolean> {
   const field = page.locator('input[name="response"]').first();
 
   // `waitFor`, not `isVisible({ timeout })`. Playwright's isVisible is a
@@ -76,7 +76,7 @@ async function answerInterrupt(page: Page, answer: string): Promise<boolean> {
     .catch(() => false);
 
   if (!appeared) {
-    console.warn(`   ⚠️ The interrupt form never appeared.`);
+    ctx.warn(`The interrupt form never appeared.`);
     return false;
   }
 
@@ -122,13 +122,15 @@ async function answerInterrupt(page: Page, answer: string): Promise<boolean> {
 export const runInterruptSingleAction: PageActionHandler = async (
   page: Page,
   config: PageRecordConfig,
+  _rootPath,
+  ctx,
 ) => {
   const [opening, followUp] = promptsFor(config);
 
   console.log(`   [Interrupt] Opening turn to trigger beforeModel...`);
   await sendPrompt(page, opening, { timeoutMs: 12000 });
 
-  const answered = await answerInterrupt(page, AGENT_NAME);
+  const answered = await answerInterrupt(ctx, page, AGENT_NAME);
   if (!answered) {
     throw new Error(
       'The interrupt form never rendered. This tab is the one that is supposed to ' +
@@ -168,8 +170,10 @@ export const runInterruptSingleAction: PageActionHandler = async (
 export const runInterruptConditionalAction: PageActionHandler = async (
   page: Page,
   config: PageRecordConfig,
+  _rootPath,
+  ctx,
 ) => {
-  await selectTab(page, 'conditional');
+  await selectTab(ctx, page, 'conditional');
 
   console.log(`   [Interrupt conditional] Prompting to raise the dispatched interrupt...`);
   const msgCount = await sendPrompt(page, config.prompt, { timeoutMs: 12000 });
@@ -201,11 +205,10 @@ export const runInterruptConditionalAction: PageActionHandler = async (
       await page.locator('button:has-text("Approve")').first().click({ timeout: 4000 }).catch(() => {});
       console.log(`   ✓ Approved the interrupt.`);
     } else {
-      await answerInterrupt(page, AGENT_NAME);
+      await answerInterrupt(ctx, page, AGENT_NAME);
     }
   } else {
-    console.warn(
-      `   ⚠️ [Interrupt conditional] No card rendered in 30s. This is the behaviour the ` +
+    ctx.warn(`[Interrupt conditional] No card rendered in 30s. This is the behaviour the ` +
         `removed \`knownIssue\` described -- neither registration claiming the event -- so ` +
         `check the tab by hand before trusting this clip as a pass.`,
     );
@@ -215,8 +218,7 @@ export const runInterruptConditionalAction: PageActionHandler = async (
     await waitForAgentResponseCompletion(page, config.waitAfterPromptMs ?? 5000, msgCount);
   } catch (e) {
     if (!(e instanceof AgentSilentError)) throw e;
-    console.warn(
-      `   ⚠️ [Interrupt conditional] The agent never answered. The clip shows an empty chat.`,
+    ctx.warn(`[Interrupt conditional] The agent never answered. The clip shows an empty chat.`,
     );
   }
 

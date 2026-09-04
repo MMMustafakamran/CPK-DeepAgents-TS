@@ -76,7 +76,7 @@ export const PAGES = definePages([
         endLine: 39,
       },
     ],
-    prompt: "What's the weather in Karachi?",
+    prompt: 'Hey, are you connected? What is the weather like in Karachi right now?',
     waitAfterPromptMs: 4000,
   },
 
@@ -91,7 +91,7 @@ export const PAGES = definePages([
       'frontend/src/app/prebuilt-components/copilot-threads-drawer/demo-chat/page.tsx',
     startLine: 35,
     endLine: 51,
-    prompt: 'Give me a one-sentence description of what a deep agent is.',
+    prompt: 'In one sentence, what is a deep agent?',
     waitAfterPromptMs: 4000,
   },
 
@@ -105,7 +105,7 @@ export const PAGES = definePages([
     ideFile: 'frontend/src/app/headless-threads/demo-chat/page.tsx',
     startLine: 52,
     endLine: 95,
-    prompt: 'Name one thing a long-horizon agent needs that a chatbot does not.',
+    prompt: 'What is one thing a long-horizon agent needs that a plain chatbot does not?',
     waitAfterPromptMs: 4000,
   },
   {
@@ -117,7 +117,7 @@ export const PAGES = definePages([
     ideFile: 'frontend/src/app/threads-lifecycle/demo-chat/page.tsx',
     startLine: 27,
     endLine: 60,
-    prompt: 'Remember this number: 4417. What number did I just give you?',
+    prompt: 'Remember this number for me: 4417. Now, what number did I just give you?',
     waitAfterPromptMs: 4000,
   },
 
@@ -132,7 +132,7 @@ export const PAGES = definePages([
     startLine: 30,
     endLine: 44,
     extraTabs: [{ filePath: 'backend/src/toolRendering.ts', startLine: 14, endLine: 39 }],
-    prompt: "What's the weather in Tokyo?",
+    prompt: 'Check the weather in Tokyo for me.',
     waitAfterPromptMs: 4000,
   },
   {
@@ -147,7 +147,7 @@ export const PAGES = definePages([
     // `copilotkitEmitState` is the half the frontend cannot show: the panel only
     // re-renders because the graph pushes a delta from here.
     extraTabs: [{ filePath: 'backend/src/stateRendering.ts', startLine: 37, endLine: 62 }],
-    prompt: 'Research renewable energy storage and show me your progress.',
+    prompt: 'Research renewable energy storage for me, and show me your progress as you go.',
     waitAfterPromptMs: 5000,
   },
   {
@@ -161,8 +161,8 @@ export const PAGES = definePages([
     startLine: 11,
     endLine: 43,
     extraTabs: [{ filePath: 'backend/src/interruptBased.ts', startLine: 45, endLine: 70 }],
-    prompts: ['Hello, can you help me with something?', 'What should I call you?'],
-    prompt: 'Hello, can you help me with something?',
+    prompts: ['Hi there. Could you help me with something?', 'What should I call you?'],
+    prompt: 'Hi there. Could you help me with something?',
     waitAfterPromptMs: 4000,
   },
   {
@@ -192,7 +192,7 @@ export const PAGES = definePages([
     startLine: 134,
     endLine: 157,
     extraTabs: [{ filePath: 'backend/src/interruptBased.ts', startLine: 45, endLine: 66 }],
-    prompt: 'Hello, can you help me with something?',
+    prompt: 'Hi there. Could you help me with something?',
     waitAfterPromptMs: 5000,
   },
 
@@ -207,7 +207,7 @@ export const PAGES = definePages([
     startLine: 16,
     endLine: 29,
     extraTabs: [{ filePath: 'backend/src/frontendTools.ts', startLine: 36, endLine: 49 }],
-    prompt: 'Say hello to Fiqros.',
+    prompt: 'Can you say hello to Fiqros for me?',
     waitAfterPromptMs: 4000,
   },
 
@@ -222,7 +222,7 @@ export const PAGES = definePages([
     startLine: 10,
     endLine: 39,
     extraTabs: [{ filePath: 'backend/src/sharedState.ts', startLine: 34, endLine: 63 }],
-    prompt: 'Set the language to Spanish.',
+    prompt: 'Please set the language to Spanish.',
     waitAfterPromptMs: 4000,
     // Reproduced here on 04 Sep 2026, the same way the Python sibling files it.
     // The 04-Sep clip has the agent answering "El idioma se ha establecido en
@@ -261,7 +261,7 @@ export const PAGES = definePages([
     startLine: 10,
     endLine: 55,
     extraTabs: [{ filePath: 'backend/src/sharedState.ts', startLine: 34, endLine: 63 }],
-    prompt: 'Tell me one interesting fact about Karachi.',
+    prompt: 'Tell me one interesting fact about Karachi, please.',
     waitAfterPromptMs: 4500,
     knownIssue: {
       area: 'Deep Agents - Shared state - Writing agent state',
@@ -298,7 +298,7 @@ export const PAGES = definePages([
     startLine: 32,
     endLine: 77,
     extraTabs: [{ filePath: 'backend/src/predictiveState.ts', startLine: 29, endLine: 62 }],
-    prompt: 'Plan a three-step research task about solar panel recycling and report each step.',
+    prompt: 'Plan a three-step research task on solar panel recycling, and report each step as you go.',
     waitAfterPromptMs: 5000,
     // The same finding the Python sibling files against this tab, reproduced
     // here on 04 Sep 2026: the 04-Sep clip answers with a full three-step plan
@@ -346,7 +346,7 @@ export const PAGES = definePages([
         endLine: 77,
       },
     ],
-    prompt: 'Plan a three-step research task about solar panel recycling and report each step.',
+    prompt: 'Plan a three-step research task on solar panel recycling, and report each step as you go.',
     waitAfterPromptMs: 5000,
   },
   {
@@ -361,7 +361,7 @@ export const PAGES = definePages([
     extraTabs: [
       { filePath: 'backend/src/predictiveStateTool.ts', startLine: 88, endLine: 125 },
     ],
-    prompt: 'Plan a three-step research task about solar panel recycling and report each step.',
+    prompt: 'Plan a three-step research task on solar panel recycling, and report each step as you go.',
     waitAfterPromptMs: 5000,
   },
 ]);

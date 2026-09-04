@@ -2,7 +2,7 @@ import { type Page } from 'playwright';
 import { sendPrompt, waitForAgentResponseCompletion } from '../core/actions';
 import { writeIssueNote } from '../core/issue-note';
 import { humanClick, humanGlide, sleep } from '../core/overlays/cursor';
-import { type PageActionHandler, type PageRecordConfig } from '../core/types';
+import { type ActionContext, type PageActionHandler, type PageRecordConfig } from '../core/types';
 
 /**
  * The two shared-state routes. Both are broken, in opposite directions.
@@ -29,10 +29,10 @@ import { type PageActionHandler, type PageRecordConfig } from '../core/types';
 /**
  * Clicks the language toggle, with the cursor visibly travelling to it.
  */
-async function clickLanguageToggle(page: Page): Promise<void> {
+async function clickLanguageToggle(ctx: ActionContext, page: Page): Promise<void> {
   const toggle = page.locator('button:has-text("Toggle Language")').first();
   if (!(await toggle.isVisible({ timeout: 8000 }).catch(() => false))) {
-    console.warn(`   ⚠️ No "Toggle Language" button found -- the demo page may have changed.`);
+    ctx.warn(`No "Toggle Language" button found -- the demo page may have changed.`);
     return;
   }
 
@@ -60,9 +60,9 @@ async function clickLanguageToggle(page: Page): Promise<void> {
  * an English reply is the honest answer to English state and the clip proves
  * nothing.
  */
-async function toggleToSpanish(page: Page): Promise<boolean> {
+async function toggleToSpanish(ctx: ActionContext, page: Page): Promise<boolean> {
   for (let attempt = 1; attempt <= 3; attempt++) {
-    await clickLanguageToggle(page);
+    await clickLanguageToggle(ctx, page);
     await sleep(900);
 
     const text =
@@ -77,16 +77,14 @@ async function toggleToSpanish(page: Page): Promise<boolean> {
       return true;
     }
 
-    console.warn(
-      `   ⚠️ Click ${attempt} left the label on "${text.trim() || 'unknown'}", not spanish.` +
+    ctx.warn(`Click ${attempt} left the label on "${text.trim() || 'unknown'}", not spanish.` +
         ` Most likely a recompile reset the state; clicking again.`,
     );
   }
 
   // Not thrown. A take that reaches the chat on the wrong language is a weak
   // clip, not a broken recorder, and the run should still produce it and say so.
-  console.warn(
-    `   ⚠️ Could not get the label onto spanish in 3 clicks. The reply language in` +
+  ctx.warn(`Could not get the label onto spanish in 3 clicks. The reply language in` +
       ` this take proves nothing -- re-record before using it as evidence.`,
   );
   return false;
@@ -129,6 +127,8 @@ async function restOn(
 export const runSharedStateReadAction: PageActionHandler = async (
   page: Page,
   config: PageRecordConfig,
+  _rootPath,
+  ctx,
 ) => {
   console.log(`   [Shared State Read] Asking the agent to switch language...`);
   const msgCount = await sendPrompt(page, config.prompt, { timeoutMs: 12000 });
@@ -144,8 +144,7 @@ export const runSharedStateReadAction: PageActionHandler = async (
       .textContent()
       .catch(() => null)) ?? '';
   if (/spanish/i.test(label)) {
-    console.warn(
-      `   ⚠️ [Shared State Read] The panel followed the agent onto spanish -- the documented ` +
+    ctx.warn(`[Shared State Read] The panel followed the agent onto spanish -- the documented ` +
         `defect did not reproduce. Check whether it has been fixed before filing it again.`,
     );
   } else {
@@ -172,6 +171,8 @@ export const runSharedStateReadAction: PageActionHandler = async (
 export const runSharedStateWriteAction: PageActionHandler = async (
   page: Page,
   config: PageRecordConfig,
+  _rootPath,
+  ctx,
 ) => {
   // Let the route finish compiling before anything is clicked. A Turbopack
   // rebuild arriving after the toggle remounts the component and drops the
@@ -180,7 +181,7 @@ export const runSharedStateWriteAction: PageActionHandler = async (
   await sleep(1200);
 
   console.log(`   [Shared State Write] Clicking "Toggle Language"...`);
-  await toggleToSpanish(page);
+  await toggleToSpanish(ctx, page);
 
   // The label and the raw state both flip here. That is the point: the write
   // lands on the frontend, so whatever fails next is not the button.
