@@ -377,7 +377,14 @@ jobs:
     needs: prepare
     # Not should_record: a checks-only run deliberately sets that false while
     # still wanting this stage. What skips stage 2 is the drift gate halting.
-    if: needs.prepare.outputs.gated != 'true'
+    #
+    # always() because stage 1 now FAILS when no model key is configured, and a
+    # plain `needs:` would take this stage down with it. What resolved today,
+    # and whether the documented install still works, does not depend on a model
+    # key -- it is the one answer a keyless run can still give. Without this the
+    # version watch goes dark on any morning the secret lapses, which is exactly
+    # the morning a moved version would be easiest to miss.
+    if: always() && needs.prepare.outputs.gated != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
