@@ -52,8 +52,16 @@ const agents = Object.fromEntries(
 /**
  * Server-side only, and deliberately not `NEXT_PUBLIC_`. A project key prefixed
  * for the browser would ship in the bundle.
+ *
+ * The Quickstart renamed this on 2026-09-04: it is `CPK_INTELLIGENCE_API_KEY`
+ * now, holding a `cpk-...` project key, where it used to be
+ * `INTELLIGENCE_API_KEY` holding what the page called a license key. The old
+ * name is still read as a fallback — the value and its meaning did not change,
+ * only what the page calls it, and silently ignoring an existing `.env.local`
+ * would drop the runtime to SSE with no error to explain why.
  */
-const INTELLIGENCE_API_KEY = process.env.INTELLIGENCE_API_KEY;
+const INTELLIGENCE_API_KEY =
+  process.env.CPK_INTELLIGENCE_API_KEY ?? process.env.INTELLIGENCE_API_KEY;
 
 /**
  * A SECOND, SEPARATE credential — and the one that unlocks the Threads Drawer.

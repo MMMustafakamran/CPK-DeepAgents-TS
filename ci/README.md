@@ -240,7 +240,7 @@ jobs, so all four names agree. Change the prefix via `PROJECT_SLUG` in
 |---|---|---|
 | `OPENAI_API_KEY` | secret | Model provider key. Required — without it nothing records. |
 | `OPENAI_MODEL` | variable | Model override (default `gpt-4o`), read by `backend/src/shared.ts` |
-| `INTELLIGENCE_API_KEY` | secret | Optional. Turns on Intelligence mode; without it the runtime falls back to SSE with an in-memory runner. |
+| `INTELLIGENCE_API_KEY` | secret | Optional. Turns on Intelligence mode; without it the runtime falls back to SSE with an in-memory runner. The secret keeps this name; the workflow writes it into `frontend/.env.local` as both `CPK_INTELLIGENCE_API_KEY` (the name the docs use since 2026-09-04) and the old one. |
 | `COPILOTKIT_LICENSE_TOKEN` | secret | Optional. Without it the Threads Drawer stays locked. |
 
 Every graph here runs on an OpenAI model through `@langchain/openai`, so

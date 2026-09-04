@@ -137,7 +137,9 @@ export async function getRuntimeInfo(): Promise<RuntimeInfoReport> {
   return {
     agent,
     agentUrl: LANGGRAPH_DEPLOYMENT_URL,
-    intelligenceKeySet: Boolean(process.env.INTELLIGENCE_API_KEY),
+    intelligenceKeySet: Boolean(
+      process.env.CPK_INTELLIGENCE_API_KEY ?? process.env.INTELLIGENCE_API_KEY,
+    ),
     licenseTokenSet: Boolean(process.env.COPILOTKIT_LICENSE_TOKEN),
     ...runtimeProbe,
   };

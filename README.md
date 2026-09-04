@@ -62,7 +62,7 @@ The Quickstart's step 1 is now "create a free account", and the runtime it build
 
 | Env var | Where | Effect |
 |---|---|---|
-| `INTELLIGENCE_API_KEY` | `frontend/.env.local` | Puts the runtime in Intelligence mode — `/info` reports `mode: "intelligence"` and threads persist on the platform. Unset, the runtime falls back to SSE with an `InMemoryAgentRunner`: chat works everywhere, thread list/inspect answer locally, mutations and realtime metadata stay off, nothing survives a restart. |
+| `CPK_INTELLIGENCE_API_KEY` (was `INTELLIGENCE_API_KEY` before the docs renamed it on 2026-09-04; the old name is still read) | `frontend/.env.local` | Puts the runtime in Intelligence mode — `/info` reports `mode: "intelligence"` and threads persist on the platform. Unset, the runtime falls back to SSE with an `InMemoryAgentRunner`: chat works everywhere, thread list/inspect answer locally, mutations and realtime metadata stay off, nothing survives a restart. |
 | `COPILOTKIT_LICENSE_TOKEN` | `frontend/.env.local` | A **separate** credential. `/info` reports `licenseStatus` from it, and `<CopilotThreadsDrawer>` renders its locked "Upgrade" view unless that status is `valid` or `expiring` — *regardless of whether threads actually work*. A runtime can serve threads perfectly and still show every drawer as locked. |
 | `NEXT_PUBLIC_DEMO_USER_ID` / `_NAME` | `frontend/.env.local` | The identity `Providers` sends as `x-user-id` / `x-user-name`, which the runtime's `identifyUser` reads. Threads are per-user; change this and reload to watch the list diverge. |
 
@@ -112,7 +112,7 @@ cp .env.example frontend/.env.local # then keep the frontend block
 | `OPENAI_MODEL` | `backend/.env` | no | Model id for every agent. Defaults to `gpt-4o`. |
 | `LANGGRAPH_DEPLOYMENT_URL` | `frontend/.env.local` | no | Where the runtime route forwards runs. Defaults to `http://localhost:8124`. |
 | `LANGSMITH_API_KEY` | `frontend/.env.local` | no | Sent as `langsmithApiKey`. Ignored by a local dev server. |
-| `INTELLIGENCE_API_KEY` | `frontend/.env.local` | no | Puts the runtime in Intelligence mode so threads persist. Without it: SSE + in-memory runner. |
+| `CPK_INTELLIGENCE_API_KEY` (old name `INTELLIGENCE_API_KEY` still read) | `frontend/.env.local` | no | Puts the runtime in Intelligence mode so threads persist. Without it: SSE + in-memory runner. |
 | `COPILOTKIT_LICENSE_TOKEN` | `frontend/.env.local` | no | Separate credential. What `<CopilotThreadsDrawer>` gates its unlocked view on. |
 | `NEXT_PUBLIC_DEMO_USER_ID` / `_NAME` | `frontend/.env.local` | no | The demo identity `identifyUser` keys threads on. |
 | `COPILOTKIT_TELEMETRY_DISABLED` | `frontend/.env.local` | no | Silences the runtime's telemetry notice. |

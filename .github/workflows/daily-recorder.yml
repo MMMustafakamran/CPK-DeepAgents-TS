@@ -515,6 +515,11 @@ jobs:
           set -euo pipefail
           {
             echo "LANGGRAPH_DEPLOYMENT_URL=http://localhost:8124"
+            # The Quickstart renamed this to CPK_INTELLIGENCE_API_KEY on
+            # 2026-09-04. Both names are written from the one secret: the repo
+            # secret keeps its existing name, so nothing has to be re-entered,
+            # and the app reads whichever it finds.
+            echo "CPK_INTELLIGENCE_API_KEY=${INTELLIGENCE_API_KEY}"
             echo "INTELLIGENCE_API_KEY=${INTELLIGENCE_API_KEY}"
             echo "COPILOTKIT_LICENSE_TOKEN=${COPILOTKIT_LICENSE_TOKEN}"
           } > frontend/.env.local
