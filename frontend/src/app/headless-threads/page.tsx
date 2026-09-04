@@ -59,7 +59,8 @@ export default function Page() {
         <code>list: true, inspect: true</code> but{" "}
         <code>mutations: false</code> — the in-memory runner backs reads only, so
         the list can populate while the three buttons have no endpoint to reach.
-        Set <code>INTELLIGENCE_API_KEY</code> and all four flags flip on; the
+        Set <code>CPK_INTELLIGENCE_API_KEY</code> and all four flags flip on;
+        the
         home page&apos;s connection panel prints them.
       </Callout>
 

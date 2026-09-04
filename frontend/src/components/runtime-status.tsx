@@ -29,7 +29,7 @@ function Row({
  *
  * Three independent axes, and conflating them is the usual way to lose an hour:
  *
- *   - **mode** — did the runtime read `INTELLIGENCE_API_KEY` at all.
+ *   - **mode** — did the runtime read `CPK_INTELLIGENCE_API_KEY` at all.
  *   - **licenseStatus** — a different credential (`COPILOTKIT_LICENSE_TOKEN`),
  *     and the one the Threads Drawer gates its unlocked UI on.
  *   - **threadEndpoints** — what the runtime says it can do. SSE mode already
@@ -48,7 +48,7 @@ export async function RuntimeStatus() {
   const intelligenceDetail = intelligenceLive
     ? `Mode "intelligence"${enabled ? `, threadEndpoints ${enabled}` : ""}. This says the key was read, not that the platform accepted it — a bad key still reports this. Confirm by sending a message and looking for the thread in your project dashboard.`
     : info.intelligenceKeySet
-      ? 'INTELLIGENCE_API_KEY is set, but /info still reports mode "sse" — the key was rejected or never reached the platform.'
+      ? 'CPK_INTELLIGENCE_API_KEY is set, but /info still reports mode "sse" — the key was rejected or never reached the platform.'
       : 'Not configured. /info reports mode "sse": an in-memory runner backs the threads, so chat works everywhere and thread list/inspect answer locally, but mutations and realtime metadata stay off and nothing persists across a restart.';
 
   const licenseOk = info.licenseStatus === "valid" || info.licenseStatus === "expiring";
