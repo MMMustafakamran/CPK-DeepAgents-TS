@@ -195,19 +195,42 @@ function tailLog(logPath, lines = 25) {
   }
 }
 
+/**
+ * The same URL with the loopback address swapped for the other IP family.
+ *
+ * `langgraphjs dev` binds `--host localhost` by default, and on a host whose
+ * `localhost` resolves to `::1` first it listens on IPv6 *only*. A probe of
+ * `http://127.0.0.1:PORT` is then refused by a server that is up and serving,
+ * and the run dies at the health gate reporting an offline backend. That is
+ * what took shards 2 and 3 of run 33846484847 down: all eleven graphs had
+ * registered and the log read `Server running at ::1:8124`.
+ *
+ * So the family is treated as unknown rather than assumed. Next binds every
+ * interface and answers on both, which is why only the backend probe broke.
+ */
+function loopbackVariants(url) {
+  if (url.includes('127.0.0.1')) return [url, url.replace('127.0.0.1', '[::1]')];
+  if (url.includes('[::1]')) return [url, url.replace('[::1]', '127.0.0.1')];
+  return [url];
+}
+
 async function waitForHealth(url, name, logPath, timeoutMs = 45000) {
   const start = Date.now();
-  process.stdout.write(`⏳ Waiting for ${name} (${url})... `);
+  const candidates = loopbackVariants(url);
+  process.stdout.write(`⏳ Waiting for ${name} (${candidates.join(' or ')})... `);
   while (Date.now() - start < timeoutMs) {
-    try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(2000) });
-      if (res.ok || res.status < 500) {
-        const elapsed = ((Date.now() - start) / 1000).toFixed(1);
-        process.stdout.write(`✅ READY (${elapsed}s)!\n`);
-        return { ok: true, elapsedSec: Number(elapsed) };
+    for (const candidate of candidates) {
+      try {
+        const res = await fetch(candidate, { signal: AbortSignal.timeout(2000) });
+        if (res.ok || res.status < 500) {
+          const elapsed = ((Date.now() - start) / 1000).toFixed(1);
+          const via = candidate === url ? '' : ` via ${candidate}`;
+          process.stdout.write(`✅ READY (${elapsed}s)${via}!\n`);
+          return { ok: true, elapsedSec: Number(elapsed), url: candidate };
+        }
+      } catch {
+        // keep polling
       }
-    } catch {
-      // keep polling
     }
     await new Promise((resolve) => setTimeout(resolve, 1000));
     process.stdout.write('.');
@@ -215,8 +238,8 @@ async function waitForHealth(url, name, logPath, timeoutMs = 45000) {
   process.stdout.write('❌ TIMEOUT\n');
   console.error(`\n──── last lines of ${path.basename(logPath)} ────`);
   console.error(tailLog(logPath));
-  console.error('────────────────────────────────────────────\n');
-  throw new Error(`Timeout waiting for ${name} at ${url}. See ${logPath}`);
+  console.error('─'.repeat(44) + '\n');
+  throw new Error(`Timeout waiting for ${name} at ${candidates.join(' or ')}. See ${logPath}`);
 }
 
 async function main() {
