@@ -22,7 +22,7 @@ A navigable, working test harness for the CopilotKit ↔ Deep Agents (**TypeScri
 
 Deep Agents is LangChain's framework for long-horizon agents — `createDeepAgent` returns a compiled LangGraph graph with planning and virtual-filesystem tools already installed. CopilotKit connects one of those graphs to a React app over the AG-UI protocol, so the agent can render components, call browser-side tools, suspend for human input, and share state with your UI.
 
-This repo implements every Deep Agents doc page in that list as a live route, built from each page's **TypeScript** tab. It is a QA tool, not a tutorial: each route shows what the page teaches actually running, alongside the repo's own source read off disk at render time, plus a plain statement of anywhere the page and the shipped packages disagree. Eleven doc pages, nine routes (three doc URLs are query-string variants of one page), **eleven graphs** — eight Deep Agents plus three hand-built `StateGraph`s. The four A2UI pages are deliberately out of scope for this repo.
+This repo implements most Deep Agents doc pages in that list as a live route, built from each page's **TypeScript** tab, and tracks three more for drift without building a demo behind them (see §8). It is a QA tool, not a tutorial: each route shows what the page teaches actually running, alongside the repo's own source read off disk at render time, plus a plain statement of anywhere the page and the shipped packages disagree. Fourteen doc pages, twelve routes (three doc URLs are query-string variants of one page), **eleven graphs** — eight Deep Agents plus three hand-built `StateGraph`s. The four A2UI pages are deliberately out of scope for this repo.
 
 There is a Python sibling repo covering the same pages from the Python tabs. Where the two languages genuinely diverge — and they do, in four places that matter — each route says so and the difference is recorded in [§9](#9-known-issues--docvsimplementation-discrepancies).
 
@@ -227,6 +227,10 @@ A tool whose body runs in the browser. The backend defines no tool at all.
 *Pass:* a browser `alert()` reading `Hello, Ada!`; dismiss it and a green line appears in the left panel; the agent then reports it said hello.
 *Fail:* the agent describing what it *would* do — check `copilotkitMiddleware` is in the middleware array.
 
+**`/webmcp`** — 🚧 **Tracked, not implemented.** The doc adds a `webmcp` flag to a frontend tool so browser agents can discover it through `document.modelContext`. Its own test procedure needs Chrome 149+ with the WebMCP origin trial (or `chrome://flags/#enable-webmcp-testing`) and Chrome's Model Context Tool Inspector; CopilotKit no-ops where `document.modelContext` is absent, so a demo here would register nothing and still look green.
+
+**`/human-in-the-loop/governed-actions`** — 🚧 **Tracked, not implemented.** An approval card gating a side-effecting action, via `useInterrupt` or `useHumanInTheLoop`. The page is served byte-identically under all five framework prefixes and its snippets are plain React with no graph involved, so it is implemented once — in Agno-react and Mastra-react — rather than five times.
+
 ### Shared State
 
 **`/shared-state/in-app-agent-read`** → `shared_state_agent`
@@ -252,6 +256,10 @@ A hand-built `StateGraph` with `input` / `output` schemas: `question` in and not
 
 **`/shared-state/workflow-execution`** — 📄 reference only, no demo. The page currently serves the Input/Output Schemas content verbatim, so it has no content of its own to implement.
 
+### Intelligence
+
+**`/intelligence/quickstart`** — 🚧 **Tracked, not implemented.** Connecting an existing app to a hosted CopilotKit Intelligence project so threads persist. Step 1 is `npx copilotkit@latest login` plus `project select`, which writes a `CPK_INTELLIGENCE_API_KEY` — an account-scoped resource this harness does not have, so every later step has nothing to assert against. Tracked because it is a genuinely new page; the rest of `/deepagents/intelligence/*` is the old `/deepagents/premium/*` set renamed, and stays out of scope.
+
 ---
 
 ## 8. Testing checklist / current status
@@ -268,6 +276,8 @@ Verified 2026-08-06 by driving every graph through the real `CopilotRuntime` rou
 | [generative-ui/state-rendering](https://docs.copilotkit.ai/deepagents/generative-ui/state-rendering) | `/generative-ui/state-rendering` | `state_rendering_agent` | ✅ Working | Emit loop's caller is not shown by the page |
 | [.../your-components/interrupt-based](https://docs.copilotkit.ai/deepagents/generative-ui/your-components/interrupt-based) | `/generative-ui/your-components/interrupt-based` | `interrupt_agent`, `interrupt_multi_agent` | ⚠️ Partial | Single tab works; conditional tab left as printed and does not; the new state-note section is reproduced and does not build its note (item 2) |
 | [frontend-tools](https://docs.copilotkit.ai/deepagents/frontend-tools) | `/frontend-tools` | `frontend_tools_agent` | ✅ Working | Page's TS is a comment; state field missing `zodState` |
+| [webmcp](https://docs.copilotkit.ai/deepagents/webmcp) | `/webmcp` | — | 🚧 Not started | Tracked for drift. Needs Chrome 149+ and the WebMCP origin trial |
+| [human-in-the-loop/governed-actions](https://docs.copilotkit.ai/deepagents/human-in-the-loop/governed-actions) | `/human-in-the-loop/governed-actions` | — | 🚧 Not started | Tracked for drift. Same bytes under all five prefixes; built in Agno-react and Mastra-react |
 | [shared-state/in-app-agent-read](https://docs.copilotkit.ai/deepagents/shared-state/in-app-agent-read) | `/shared-state/in-app-agent-read` | `shared_state_agent` | ✅ Working | `zodState` default really applies in TS (unlike Python) |
 | [shared-state/in-app-agent-write](https://docs.copilotkit.ai/deepagents/shared-state/in-app-agent-write) | `/shared-state/in-app-agent-write` | `shared_state_agent` | ⚠️ Partial | Write round-trips; model never sees it; `exposeState` can't reach it |
 | [...?agent-type=prebuilt](https://docs.copilotkit.ai/deepagents/shared-state/predictive-state-updates?agent-type=prebuilt) | `/shared-state/predictive-state-updates` | `predictive_state_agent` | ✅ Working | `stateStreamingMiddleware` + `stateItem` |
@@ -275,8 +285,11 @@ Verified 2026-08-06 by driving every graph through the real `CopilotRuntime` rou
 | [...&state-emission=tool-emission](https://docs.copilotkit.ai/deepagents/shared-state/predictive-state-updates?agent-type=custom-graph&state-emission=tool-emission) | same route, tab 3 | `predictive_tool_graph` | ✅ Working | **Live** — ditto; `shouldContinue as any` replaced |
 | [shared-state/state-inputs-outputs](https://docs.copilotkit.ai/deepagents/shared-state/state-inputs-outputs) | `/shared-state/state-inputs-outputs` | — | 📄 Reference | Graph filters correctly; JS dev server ignores `output`, so nothing to show live |
 | [shared-state/workflow-execution](https://docs.copilotkit.ai/deepagents/shared-state/workflow-execution) | `/shared-state/workflow-execution` | — | 📄 Reference | Upstream duplicate of the page above; nothing of its own to implement |
+| [intelligence/quickstart](https://docs.copilotkit.ai/deepagents/intelligence/quickstart) | `/intelligence/quickstart` | — | 🚧 Not started | Tracked for drift. Needs a hosted Intelligence project and `CPK_INTELLIGENCE_API_KEY` |
 
-**Totals:** 11 ✅ Working · 2 ⚠️ Partial · 2 📄 Reference (Input/Output Schemas, Workflow Execution) · 0 ❌ Broken.
+**Totals:** 11 ✅ Working · 2 ⚠️ Partial · 2 📄 Reference (Input/Output Schemas, Workflow Execution) · 0 ❌ Broken · 3 🚧 Not started.
+
+**Tracked without a demo.** The three 🚧 rows carry a route, a nav entry and a snapshot so drift is watched, but nothing is implemented behind them and the recorder does not touch them. The reason is on each route’s page and in §7. The rest of `/deepagents/intelligence/` is the old `/deepagents/premium/` set under a new prefix and stays in `doc-snapshot/manifest.json`’s `knownUnmapped` list.
 
 The same table is rendered in-app at `/status`, generated from `frontend/src/lib/nav-config.ts` — that file is the single source of truth for routes, statuses and doc links, so this table and the app cannot drift apart.
 
@@ -381,7 +394,7 @@ The Deep Agents doc tree has **no** Troubleshooting section as of 2026-08-06. Wh
 
 ## Doc drift detection
 
-`/doc-sync` keeps this repo honest about the docs it mirrors. Press **Sync docs now** (on the landing page or on `/doc-sync`) and it fetches the markdown source behind all 11 tracked doc pages, diffs each against the copy stored in `doc-snapshot/`, replaces that copy, and reports what moved — ranked by whether the change can actually break an implementation.
+`/doc-sync` keeps this repo honest about the docs it mirrors. Press **Sync docs now** (on the landing page or on `/doc-sync`) and it fetches the markdown source behind all 14 tracked doc pages, diffs each against the copy stored in `doc-snapshot/`, replaces that copy, and reports what moved — ranked by whether the change can actually break an implementation.
 
 Doc pages are fetched by appending `.md` to their URL, which returns the authored MDX rather than 250 KB of rendered HTML. Every response is checked for `text/markdown` before it is allowed near the snapshot: a URL that misses the markdown handler still answers `200` with the HTML app shell, and writing that in would destroy the baseline and report the whole corpus as rewritten on the next run. A run commits all pages or none.
 
@@ -426,12 +439,14 @@ npm run report                      # rebuild DOCUMENTED_REPORT.md from the last
 `npm run record:doctor` is the definition of done for any change under
 `autorecorder/`: it exits 0, or the change is not finished.
 
-**Fourteen takes, eleven doc pages.** Three pages carry more than one take
+**Fourteen takes, fourteen doc pages.** Three pages carry more than one take
 because they carry more than one variant behind a tab strip — the two interrupt
-tabs, and the three predictive-state variants. Two tracked doc pages have no
+tabs, and the three predictive-state variants. Five tracked doc pages have no
 take at all: `state-inputs-outputs` and `workflow-execution` are reference-only
-routes with no `/demo-chat` surface, so there is nothing to drive. That is a
-known gap, listed in `PROJECT_GOAL.md`.
+routes with no `/demo-chat` surface, and `webmcp`, `governed-actions` and
+`intelligence/quickstart` are tracked for drift with no implementation behind
+them. The first two are a known gap, listed in `PROJECT_GOAL.md`; the other
+three are deliberate — see §8.
 
 **`[ISSUE]` is not `[FAIL]`.** A page with a `knownIssue` in
 `autorecorder/config/pages.config.ts` is *expected* to misbehave: the take
@@ -540,6 +555,11 @@ Grouped the way the doc nav groups them. Every link below was read in its **Type
 
 **App Control**
 - [Frontend Tools](https://docs.copilotkit.ai/deepagents/frontend-tools)
+- [WebMCP](https://docs.copilotkit.ai/deepagents/webmcp) — tracked for drift only
+- [Governed Actions](https://docs.copilotkit.ai/deepagents/human-in-the-loop/governed-actions) — tracked for drift only
+
+**Intelligence**
+- [Quickstart](https://docs.copilotkit.ai/deepagents/intelligence/quickstart) — tracked for drift only
 
 **Shared State**
 - [Reading agent state](https://docs.copilotkit.ai/deepagents/shared-state/in-app-agent-read)
@@ -550,4 +570,4 @@ Grouped the way the doc nav groups them. Every link below was read in its **Type
 - [Input/Output Schemas](https://docs.copilotkit.ai/deepagents/shared-state/state-inputs-outputs) *(no TypeScript tab)*
 - [Workflow Execution](https://docs.copilotkit.ai/deepagents/shared-state/workflow-execution)
 
-**Not covered by this repo.** The Deep Agents sidebar also lists Human in the Loop, and an Intelligence Platform group (Rich Threads, Headless Threads, Thread & History Lifecycle, Synchronize Thread History, and four premium pages). Those were outside the scope requested for this build.
+**Not covered by this repo.** The Deep Agents sidebar also lists the Human in the Loop overview (its Governed Actions sub-page is tracked above), and the rest of the Intelligence Platform group (Rich Threads, Headless Threads, Thread & History Lifecycle, Synchronize Thread History, and four premium pages). Those were outside the scope requested for this build.

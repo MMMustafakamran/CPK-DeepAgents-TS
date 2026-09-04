@@ -173,6 +173,26 @@ export const NAV: NavGroup[] = [
           "A tool registered with useFrontendTool that executes in the browser when the agent calls it.",
         status: "working",
       },
+      {
+        path: "/webmcp",
+        title: "WebMCP",
+        docPath: "/deepagents/webmcp",
+        summary:
+          "Publishing an existing frontend tool to document.modelContext so WebMCP-aware browser agents can discover and call it.",
+        status: "not-started",
+        statusNote:
+          "Tracked for drift only — no demo yet. The page’s own verification steps need Chrome 149+ with the WebMCP origin trial or chrome://flags/#enable-webmcp-testing, and CopilotKit no-ops wherever document.modelContext is absent, so there is nothing a headless Chromium run can show.",
+      },
+      {
+        path: "/human-in-the-loop/governed-actions",
+        title: "Governed Actions",
+        docPath: "/deepagents/human-in-the-loop/governed-actions",
+        summary:
+          "Gating a side-effecting agent action behind an approval card, via useInterrupt or useHumanInTheLoop.",
+        status: "not-started",
+        statusNote:
+          "Tracked for drift only — no demo in this repo yet. The identical page is implemented in Agno-react and Mastra-react; all five framework prefixes serve byte-identical content, so those findings apply here unchanged.",
+      },
     ],
   },
   {
@@ -231,6 +251,21 @@ export const NAV: NavGroup[] = [
         status: "reference",
         statusNote:
           "Reference only — the page is an upstream duplicate of Input/Output Schemas, so there is nothing of its own to implement.",
+      },
+    ],
+  },
+  {
+    title: "Intelligence",
+    routes: [
+      {
+        path: "/intelligence/quickstart",
+        title: "Intelligence · Quickstart",
+        docPath: "/deepagents/intelligence/quickstart",
+        summary:
+          "Connecting an existing app to a hosted CopilotKit Intelligence project so threads persist.",
+        status: "not-started",
+        statusNote:
+          "Tracked for drift only — no demo yet. Setup starts at `npx copilotkit login` and a `CPK_INTELLIGENCE_API_KEY` from a hosted Intelligence project, which is an account-scoped resource this harness does not have.",
       },
     ],
   },

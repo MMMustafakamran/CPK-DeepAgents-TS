@@ -64,6 +64,30 @@
       "age": 0,
       "date": "Thu, 03 Sep 2026 13:06:21 GMT"
     },
+    "/deepagents/human-in-the-loop/governed-actions": {
+      "file": "deepagents__human-in-the-loop__governed-actions.md",
+      "sha256": "c3ffbf2aa5a8b697765c47f5668c9ac1f3608ae778728bb504b77c18a995214b",
+      "bytes": 7168,
+      "lines": 256,
+      "routes": [
+        "/human-in-the-loop/governed-actions"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Fri, 04 Sep 2026 13:40:38 GMT"
+    },
+    "/deepagents/intelligence/quickstart": {
+      "file": "deepagents__intelligence__quickstart.md",
+      "sha256": "09c72a40bdd9767620337615e93a5728c72005a76e715ce21a5ae9452c6c332b",
+      "bytes": 7245,
+      "lines": 160,
+      "routes": [
+        "/intelligence/quickstart"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Fri, 04 Sep 2026 13:40:38 GMT"
+    },
     "/deepagents/quickstart": {
       "file": "deepagents__quickstart.md",
       "sha256": "a28bfeeeb22bd921336bf98a9e0fb672c7f8185228956e8edcaade2efe2b01c4",
@@ -135,6 +159,18 @@
       "status": "ok",
       "age": 0,
       "date": "Wed, 26 Aug 2026 10:26:26 GMT"
+    },
+    "/deepagents/webmcp": {
+      "file": "deepagents__webmcp.md",
+      "sha256": "fca5a184ba5d7e511d3699b4164300dabb3225f19910d869d97fac6d5c17ab0d",
+      "bytes": 7483,
+      "lines": 153,
+      "routes": [
+        "/webmcp"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Fri, 04 Sep 2026 13:40:37 GMT"
     }
   },
   "sitemap": {
@@ -205,7 +241,6 @@
       "https://docs.copilotkit.ai/deepagents/headless",
       "https://docs.copilotkit.ai/deepagents/headless-threads",
       "https://docs.copilotkit.ai/deepagents/human-in-the-loop",
-      "https://docs.copilotkit.ai/deepagents/human-in-the-loop/governed-actions",
       "https://docs.copilotkit.ai/deepagents/human-in-the-loop/headless",
       "https://docs.copilotkit.ai/deepagents/human-in-the-loop/interrupt-flow",
       "https://docs.copilotkit.ai/deepagents/human-in-the-loop/useInterrupt",
@@ -215,7 +250,6 @@
       "https://docs.copilotkit.ai/deepagents/intelligence/intelligence-platform",
       "https://docs.copilotkit.ai/deepagents/intelligence/managed-intelligence-platform",
       "https://docs.copilotkit.ai/deepagents/intelligence/overview",
-      "https://docs.copilotkit.ai/deepagents/intelligence/quickstart",
       "https://docs.copilotkit.ai/deepagents/intelligence/self-hosting",
       "https://docs.copilotkit.ai/deepagents/intelligence/threads-explained",
       "https://docs.copilotkit.ai/deepagents/migrate/1.10.X",
@@ -263,7 +297,6 @@
       "https://docs.copilotkit.ai/deepagents/tutorials/multi-conversation-chat",
       "https://docs.copilotkit.ai/deepagents/voice",
       "https://docs.copilotkit.ai/deepagents/vs-code-extension",
-      "https://docs.copilotkit.ai/deepagents/webmcp",
       "https://docs.copilotkit.ai/deepagents/whats-new",
       "https://docs.copilotkit.ai/deepagents/whats-new/a2a-mcp-handshake",
       "https://docs.copilotkit.ai/deepagents/whats-new/a2ui-launch",
