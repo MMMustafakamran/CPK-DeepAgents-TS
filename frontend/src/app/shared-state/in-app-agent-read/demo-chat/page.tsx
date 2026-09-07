@@ -3,7 +3,6 @@
 import { CopilotChat, useAgent } from "@copilotkit/react-core/v2";
 
 import { DemoFrame } from "@/components/demo-frame";
-import { QaNote } from "@/components/qa-note";
 
 const AGENT_ID = "shared_state_agent";
 
@@ -45,11 +44,6 @@ export default function Page() {
       subtitle={`graph: ${AGENT_ID}`}
     >
       <div className="flex h-full flex-col">
-        <QaNote
-          try="Ask the agent to switch language, e.g. &ldquo;Set the language to Spanish.&rdquo;"
-          expected="Language on the left updates to spanish as the agent writes it."
-          actual="The agent answers in Spanish but the panel never updates."
-        />
         <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-2">
           <YourMainContent />
           <div className="min-h-0 border-t border-slate-200 md:border-l md:border-t-0 dark:border-slate-800">
