@@ -13,8 +13,7 @@ A navigable, working test harness for the CopilotKit ↔ Deep Agents (**TypeScri
 | **Agent framework** | `deepagents` 1.12.2 · `langchain` 1.5.5 · `@langchain/langgraph` 1.4.9 · `@langchain/langgraph-cli` 1.4.4 |
 | **Frontend** | Next.js 16.3.0 · React 19.2.8 · TypeScript 5 · Tailwind 4 |
 | **Agent server port** | **8124** (not the Quickstart's 8123 — see [§3](#3-architecture)) |
-| **Recording pipeline** | `autorecorder/` + `ci/` — one narrated clip per doc page ([§10.5](#105-the-recording-pipeline)) |
-| **CI** | `.github/workflows/daily-recorder.yml` — nightly at 05:27 UTC, 3 shards |
+| **Recording pipeline** | `autorecorder/` — one narrated clip per doc page ([§10.5](#105-the-recording-pipeline)) |
 
 ---
 
@@ -494,21 +493,10 @@ tab of that page carries any more. Re-record before promoting one.
 deepagents-ts/
 ├── CLAUDE.md
 ├── README.md
-├── PROJECT_GOAL.md                   what a run is for, and what "done" means
-├── package.json                      workspace scripts (automate / record / drift / report)
+├── project-context.md               what a run is for, and what "done" means
+├── package.json                      workspace scripts (dev / record)
 ├── .env.example                      both env blocks, annotated
 ├── .gitignore
-│
-├── .github/workflows/
-│   ├── daily-recorder.yml            nightly drift gate → 3 recording shards → report
-│   └── doc-sync.yml                  scheduled snapshot refresh
-│
-├── ci/                               the pipeline: drift → preflight → deps → servers → record → report
-│   ├── automate.mjs                  the one entry point (`npm run automate`)
-│   ├── build-report.mjs              DOCUMENTED_REPORT.md
-│   ├── check-doc-drift.mjs           headless version of the /doc-sync button
-│   ├── write-versions.mjs            frontend/VERSIONS.md, resolved after install
-│   └── lib/                          ports, env loading, page groups, muxing, report
 │
 ├── autorecorder/                     per-page screen capture (doc → code → live feature)
 │   ├── ADAPT.md                      read before touching anything in here
