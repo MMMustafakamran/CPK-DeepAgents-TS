@@ -15,13 +15,7 @@ nothing when the docs are broken is a failed run, not a passing one.
 | `doc-snapshot/` | Version-controlled copy of the upstream doc pages, plus `CHANGELOG.md` of drift |
 | `frontend/`, `backend/` | The harness — each doc page is a live route running what that page teaches. `backend/` is TypeScript on the LangGraph JS dev server (`:8124`), not FastAPI |
 | `autorecorder/` | Per-page demo capture (doc → code → live feature), paced to look human |
-| `ci/` | `automate.mjs`: drift → preflight → deps → servers → record → report |
 
-## Cycle
-
-```
-drift check → implement changed pages into the harness → record → report
-```
 
 ## Rules
 
