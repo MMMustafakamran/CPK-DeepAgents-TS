@@ -413,6 +413,14 @@ export const PAGES = definePages([
     ],
     prompt:
       'Please send an invoice reminder to acme@example.com, but check with me before it goes out.',
+    // Two turns, because the card has two answers and only one of them was
+    // ever filmed. The first request is harmless and gets approved; the second
+    // is destructive and gets rejected, which is the half that shows the
+    // policy actually stopping something.
+    prompts: [
+      'Please send an invoice reminder to acme@example.com, but check with me before it goes out.',
+      'Now permanently delete the acme@example.com customer record, but check with me before it goes through.',
+    ],
     waitAfterPromptMs: 6000,
   },
 ]);

@@ -71,6 +71,7 @@ import { runStandardAction } from '../core/actions';
 import { type Page } from 'playwright';
 
 import { runFrontendToolsAction } from './frontend-tools.action';
+import { runGovernedActionsAction } from './governed-actions.action';
 import {
   runInterruptConditionalAction,
   runInterruptSingleAction,
@@ -101,6 +102,7 @@ export const ACTION_MAP: Record<string, PageActionHandler> = {
   'interrupt-conditional': runInterruptConditionalAction,
 
   'frontend-tools': runFrontendToolsAction,
+  'human-in-the-loop-governed-actions': runGovernedActionsAction,
 
   'in-app-agent-read': runSharedStateReadAction,
   'in-app-agent-write': runSharedStateWriteAction,
