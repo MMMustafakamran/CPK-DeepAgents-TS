@@ -40,7 +40,7 @@ on:
         type: boolean
         default: false
       group_threads:
-        description: 'Threads — Threads Drawer, Headless Threads, Thread & History Lifecycle'
+        description: 'Threads & Intelligence — Threads Drawer, Headless Threads, Thread & History Lifecycle, Intelligence Quickstart'
         type: boolean
         default: false
       group_generative_ui:
@@ -48,7 +48,7 @@ on:
         type: boolean
         default: false
       group_app_control:
-        description: 'App Control — Frontend Tools'
+        description: 'App Control — Frontend Tools, Governed Actions'
         type: boolean
         default: false
       group_shared_state:
