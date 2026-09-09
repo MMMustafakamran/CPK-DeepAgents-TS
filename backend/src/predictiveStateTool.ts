@@ -4,8 +4,11 @@
  * https://docs.copilotkit.ai/deepagents/shared-state/predictive-state-updates?agent-type=custom-graph&state-emission=tool-emission
  *
  * Also not a Deep Agent, and also printed in full on the TypeScript tab —
- * imports, tool, node, routing, compile. The Python tab for this same variant
- * shows only a bare node, so the Python sibling repo can only quote it.
+ * imports, tool, node, routing, compile. The Python tab used to show only a
+ * bare node here; the 2026-09-03 doc sync gave it its own `StateGraph`,
+ * `ToolNode`, routing function and `compile(checkpointer=MemorySaver())`, so
+ * this variant is no longer one the Python sibling repo can only quote. The
+ * two tabs now teach the same shape.
  *
  * The mapping is the same one `stateStreamingMiddleware` packages in the
  * prebuilt variant, declared here on the `RunnableConfig` with

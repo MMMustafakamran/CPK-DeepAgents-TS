@@ -6,7 +6,7 @@ import { LANGGRAPH_DEPLOYMENT_URL } from "./agents";
  * Reachability + configuration snapshot for the Quickstart's connection panel.
  *
  * Server-side by necessity on both counts: the browser has no route to the
- * agent process (and should not have one), and `INTELLIGENCE_API_KEY` is a
+ * agent process (and should not have one), and `CPK_INTELLIGENCE_API_KEY` is a
  * server secret that must never reach the bundle.
  *
  * Two things are probed:
@@ -137,7 +137,9 @@ export async function getRuntimeInfo(): Promise<RuntimeInfoReport> {
   return {
     agent,
     agentUrl: LANGGRAPH_DEPLOYMENT_URL,
-    intelligenceKeySet: Boolean(process.env.INTELLIGENCE_API_KEY),
+    intelligenceKeySet: Boolean(
+      process.env.CPK_INTELLIGENCE_API_KEY ?? process.env.INTELLIGENCE_API_KEY,
+    ),
     licenseTokenSet: Boolean(process.env.COPILOTKIT_LICENSE_TOKEN),
     ...runtimeProbe,
   };

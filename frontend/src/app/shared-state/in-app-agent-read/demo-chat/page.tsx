@@ -43,10 +43,12 @@ export default function Page() {
       parentPath="/shared-state/in-app-agent-read"
       subtitle={`graph: ${AGENT_ID}`}
     >
-      <div className="grid h-full grid-cols-1 md:grid-cols-2">
-        <YourMainContent />
-        <div className="min-h-0 border-t border-slate-200 md:border-l md:border-t-0 dark:border-slate-800">
-          <CopilotChat agentId={AGENT_ID} className="h-full" />
+      <div className="flex h-full flex-col">
+        <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-2">
+          <YourMainContent />
+          <div className="min-h-0 border-t border-slate-200 md:border-l md:border-t-0 dark:border-slate-800">
+            <CopilotChat agentId={AGENT_ID} className="h-full" />
+          </div>
         </div>
       </div>
     </DemoFrame>

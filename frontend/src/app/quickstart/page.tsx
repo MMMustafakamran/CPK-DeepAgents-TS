@@ -103,9 +103,24 @@ export default function Page() {
         </p>
       </Callout>
 
+      <Callout tone="info" title="What the 2026-09-04 sync changed here">
+        The Quickstart&apos;s <code>.env.local</code> block renamed{" "}
+        <code>INTELLIGENCE_API_KEY</code> to{" "}
+        <code>CPK_INTELLIGENCE_API_KEY</code>, changed the placeholder from{" "}
+        <code>your_license_key</code> to <code>cpk-...</code>, and stopped
+        calling it a license key — it is the project API key now. That last
+        change is the useful one: the old placeholder actively encouraged the
+        confusion the callout below exists to undo. Both the TypeScript and the
+        FastAPI runtime tab changed the same way, and the callout&apos;s link
+        moved from <code>/deepagents/premium/connect-your-runtime</code> to{" "}
+        <code>/deepagents/intelligence/connect-your-runtime</code>. Nothing says
+        whether the old variable still works, so this repo reads the new name
+        first and falls back to the old one.
+      </Callout>
+
       <Callout tone="info" title="Two credentials, not one">
         <p>
-          <code>INTELLIGENCE_API_KEY</code> authorizes the runtime against the
+          <code>CPK_INTELLIGENCE_API_KEY</code> authorizes the runtime against the
           platform: it is what makes <code>/info</code> report{" "}
           <code>mode: &quot;intelligence&quot;</code> and what makes the thread
           endpoints return real rows. Leave it unset and the runtime falls back

@@ -2,7 +2,7 @@
   "name": "deepagents-ts-harness",
   "version": "0.1.0",
   "scripts": {
-    "dev": "langgraphjs dev --port 8123 --no-browser",
+    "dev": "langgraphjs dev --port 8124 --no-browser",
     "typecheck": "tsc --noEmit"
   },
   "type": "module",

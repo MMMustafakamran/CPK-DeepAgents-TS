@@ -1,10 +1,15 @@
 {
-  "dependencies": {
-    "@ag-ui/client": "^0.0.58",
-    "@ag-ui/core": "^0.0.58",
-    "@copilotkit/a2ui-renderer": "^1.68.3",
-    "@copilotkit/react-core": "^1.68.3",
-    "@copilotkit/runtime": "^1.68.3",
-    "@copilotkit/voice": "^1.68.3"
+  "name": "copilotkit-deepagents-typescript-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "dev:agent": "npm --prefix backend run dev",
+    "record": "npm --prefix autorecorder run record --",
+    "record:all": "npm --prefix autorecorder run record",
+    "record:issues": "npm --prefix autorecorder run record -- --pages=issues",
+    "record:list": "npm --prefix autorecorder run record -- --list",
+    "record:doctor": "npm --prefix autorecorder run doctor",
+    "record:doctor:online": "npm --prefix autorecorder run doctor:online"
   }
 }

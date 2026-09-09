@@ -61,7 +61,7 @@ export default function Page() {
         </p>
         <ul className="mt-2 space-y-1.5">
           <li>
-            · <code>INTELLIGENCE_API_KEY</code> (<code>cpk-…</code>) authorizes
+            · <code>CPK_INTELLIGENCE_API_KEY</code> (<code>cpk-…</code>) authorizes
             the runtime against the platform. It is what makes{" "}
             <code>/info</code> report <code>mode: &quot;intelligence&quot;</code>{" "}
             and what makes the thread endpoints return real rows.

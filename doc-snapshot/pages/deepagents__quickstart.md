@@ -2,11 +2,8 @@
 
 > Get started with Deep Agents and CopilotKit in minutes.
 
-<OpsPlatformCTA
-  variant="card"
-  title="Ship Deep Agents to production"
-  body="Add persistent threads and the inspector with CopilotKit Intelligence."
-  ctaLabel="Create a free account"
+<IntelligenceOnboardingPrompt
+  feature="learning"
   surface="docs_deepagents_quickstart"
 />
 
@@ -286,7 +283,7 @@ Before you begin, you'll need the following:
                     },
                     // [!code highlight:8]
                     intelligence: new CopilotKitIntelligence({
-                      apiKey: process.env.INTELLIGENCE_API_KEY!,
+                      apiKey: process.env.CPK_INTELLIGENCE_API_KEY!,
                     }),
                     // Threads are per-user. Without this, every visitor shares one history.
                     identifyUser: (request) => ({
@@ -321,7 +318,7 @@ Before you begin, you'll need the following:
                     },
                     // [!code highlight:8]
                     intelligence: new CopilotKitIntelligence({
-                      apiKey: process.env.INTELLIGENCE_API_KEY!,
+                      apiKey: process.env.CPK_INTELLIGENCE_API_KEY!,
                     }),
                     // Threads are per-user. Without this, every visitor shares one history.
                     identifyUser: (request) => ({
@@ -341,18 +338,18 @@ Before you begin, you'll need the following:
             </Tab>
         </Tabs>
 
-        The runtime reads the license key from step 1. Add it to the app that serves
+        The runtime reads the project API key from step 1. Add it to the app that serves
         this route:
 
         ```plaintext title=".env.local"
-        INTELLIGENCE_API_KEY=your_license_key
+        CPK_INTELLIGENCE_API_KEY=cpk-...
         ```
 
         <Callout type="info" title="Running without the Intelligence Platform?">
           Drop the `intelligence` and `identifyUser` options and the runtime falls back
           to SSE mode with an in-memory runner. Chat still works, but Threads and the
           Inspector stay locked and the key is never read. See
-          [Connect your runtime to Intelligence](/deepagents/premium/connect-your-runtime) for the
+          [Connect your runtime to Intelligence](/deepagents/intelligence/connect-your-runtime) for the
           full constructor and how to confirm the key is in use.
         </Callout>
     </Step>
