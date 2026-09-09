@@ -15,6 +15,7 @@ A navigable, working test harness for the CopilotKit ↔ Deep Agents (**TypeScri
 | **Agent server port** | **8124** (not the Quickstart's 8123 — see [§3](#3-architecture)) |
 | **Recording pipeline** | `autorecorder/` + `ci/` — one narrated clip per doc page ([§10.5](#105-the-recording-pipeline)) |
 | **CI** | `.github/workflows/daily-recorder.yml` — nightly at 05:27 UTC, 3 shards |
+| **Recording pipeline** | `autorecorder/` — one narrated clip per doc page ([§10.5](#105-the-recording-pipeline)) |
 
 ---
 
@@ -258,7 +259,7 @@ A hand-built `StateGraph` with `input` / `output` schemas: `question` in and not
 
 ### Intelligence
 
-**`/intelligence/quickstart`** — 🚧 **Tracked, not implemented.** Connecting an existing app to a hosted CopilotKit Intelligence project so threads persist. Step 1 is `npx copilotkit@latest login` plus `project select`, which writes a `CPK_INTELLIGENCE_API_KEY` — an account-scoped resource this harness does not have, so every later step has nothing to assert against. Tracked because it is a genuinely new page; the rest of `/deepagents/intelligence/*` is the old `/deepagents/premium/*` set renamed, and stays out of scope.
+**`/intelligence/quickstart`** — ⚠️ **Partial.** Steps 3 and 4 are implemented; steps 1, 2 and 5 are not. The 2026-09-09 sync rewrote step 3 from the multi-route handler to `mode: "single-route"` with a single `POST` export, and step 4 from `runtimeUrl` alone to `runtimeUrl` plus `useSingleEndpoint`. Neither needs a hosted project, so both are mounted now: `/api/copilotkit-single` takes the same runtime object as the multi-route mount, and `/intelligence/quickstart/demo-chat` drives it. Steps 1, 2 and 5 still open with `npx copilotkit@latest login` plus `project select`, which writes a `CPK_INTELLIGENCE_API_KEY` — an account-scoped resource this harness does not have, so the confirmation step has nothing to assert against. Three findings came out of the half that is testable, all on the route's page: the single endpoint accepts seven envelope methods and no thread, memory or annotation method is among them; single-route mode reports `threadEndpointsEnabled: false` from `/info`, which locks the Inspector thread list the page's last step tells you to check; and the page's own coding-agent prompt still instructs the reader to do the opposite of its manual steps. Still tracked as new because it is a genuinely new page; the rest of `/deepagents/intelligence/*` is the old `/deepagents/premium/*` set renamed, and stays out of scope.
 
 ---
 
@@ -285,9 +286,9 @@ Verified 2026-08-06 by driving every graph through the real `CopilotRuntime` rou
 | [...&state-emission=tool-emission](https://docs.copilotkit.ai/deepagents/shared-state/predictive-state-updates?agent-type=custom-graph&state-emission=tool-emission) | same route, tab 3 | `predictive_tool_graph` | ✅ Working | **Live** — ditto; `shouldContinue as any` replaced |
 | [shared-state/state-inputs-outputs](https://docs.copilotkit.ai/deepagents/shared-state/state-inputs-outputs) | `/shared-state/state-inputs-outputs` | — | 📄 Reference | Graph filters correctly; JS dev server ignores `output`, so nothing to show live |
 | [shared-state/workflow-execution](https://docs.copilotkit.ai/deepagents/shared-state/workflow-execution) | `/shared-state/workflow-execution` | — | 📄 Reference | Upstream duplicate of the page above; nothing of its own to implement |
-| [intelligence/quickstart](https://docs.copilotkit.ai/deepagents/intelligence/quickstart) | `/intelligence/quickstart` | — | 🚧 Not started | Tracked for drift. Needs a hosted Intelligence project and `CPK_INTELLIGENCE_API_KEY` |
+| [intelligence/quickstart](https://docs.copilotkit.ai/deepagents/intelligence/quickstart) | `/intelligence/quickstart` | `sample_agent` | ⚠️ Partial | Single-route transport implemented and exercised; the hosted-project steps still need `CPK_INTELLIGENCE_API_KEY` |
 
-**Totals:** 10 ✅ Working · 3 ⚠️ Partial · 2 📄 Reference (Input/Output Schemas, Workflow Execution) · 0 ❌ Broken · 3 🚧 Not started.
+**Totals:** 10 ✅ Working · 4 ⚠️ Partial · 2 📄 Reference (Input/Output Schemas, Workflow Execution) · 0 ❌ Broken · 2 🚧 Not started.
 
 **Tracked without a demo.** The three 🚧 rows carry a route, a nav entry and a snapshot so drift is watched, but nothing is implemented behind them and the recorder does not touch them. The reason is on each route’s page and in §7. The rest of `/deepagents/intelligence/` is the old `/deepagents/premium/` set under a new prefix and stays in `doc-snapshot/manifest.json`’s `knownUnmapped` list.
 
@@ -448,14 +449,13 @@ npm run report                      # rebuild DOCUMENTED_REPORT.md from the last
 `npm run record:doctor` is the definition of done for any change under
 `autorecorder/`: it exits 0, or the change is not finished.
 
-**Fourteen takes, fourteen doc pages.** Three pages carry more than one take
+**Fifteen takes, fifteen doc pages.** Three pages carry more than one take
 because they carry more than one variant behind a tab strip — the two interrupt
-tabs, and the three predictive-state variants. Five tracked doc pages have no
+tabs, and the three predictive-state variants. Four tracked doc pages have no
 take at all: `state-inputs-outputs` and `workflow-execution` are reference-only
-routes with no `/demo-chat` surface, and `webmcp`, `governed-actions` and
-`intelligence/quickstart` are tracked for drift with no implementation behind
-them. The first two are a known gap, listed in `PROJECT_GOAL.md`; the other
-three are deliberate — see §8.
+routes with no `/demo-chat` surface, and `webmcp` and `governed-actions` are
+tracked for drift with no implementation behind them. The first two are a known
+gap, listed in `PROJECT_GOAL.md`; the other two are deliberate — see §8.
 
 **`[ISSUE]` is not `[FAIL]`.** A page with a `knownIssue` in
 `autorecorder/config/pages.config.ts` is *expected* to misbehave: the take
@@ -496,6 +496,8 @@ deepagents-ts/
 ├── README.md
 ├── PROJECT_GOAL.md                   what a run is for, and what "done" means
 ├── package.json                      workspace scripts (automate / record / drift / report)
+├── project-context.md               what a run is for, and what "done" means
+├── package.json                      workspace scripts (dev / record)
 ├── .env.example                      both env blocks, annotated
 ├── .gitignore
 │
