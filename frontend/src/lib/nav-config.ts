@@ -189,9 +189,10 @@ export const NAV: NavGroup[] = [
         docPath: "/deepagents/human-in-the-loop/governed-actions",
         summary:
           "Gating a side-effecting agent action behind an approval card, via useInterrupt or useHumanInTheLoop.",
-        status: "not-started",
+        status: "working",
+        hasDemo: true,
         statusNote:
-          "Tracked for drift only — no demo in this repo yet. The identical page is implemented in Agno-react and Mastra-react; all five framework prefixes serve byte-identical content, so those findings apply here unchanged.",
+          "The tool-call variant, with the page's schema unchanged — `z.record(z.unknown())` is valid on this repo's zod 3. The `useInterrupt` variant needs a backend that pauses a run and attaches `interrupt.metadata.action`, which no agent here does.",
       },
     ],
   },
