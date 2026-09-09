@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "docsRoot": "https://docs.copilotkit.ai/deepagents",
-  "syncedAt": "2026-09-04T07:58:45.770Z",
+  "syncedAt": "2026-09-09T07:59:25.121Z",
   "pages": {
     "/deepagents": {
       "file": "deepagents.md",
@@ -78,15 +78,15 @@
     },
     "/deepagents/intelligence/quickstart": {
       "file": "deepagents__intelligence__quickstart.md",
-      "sha256": "09c72a40bdd9767620337615e93a5728c72005a76e715ce21a5ae9452c6c332b",
-      "bytes": 7245,
-      "lines": 160,
+      "sha256": "5f306a37b78dd5d9f4a0b1c417269124be6cfcddc316cf2453c9cab3b9efd860",
+      "bytes": 7207,
+      "lines": 159,
       "routes": [
         "/intelligence/quickstart"
       ],
       "status": "ok",
       "age": 0,
-      "date": "Fri, 04 Sep 2026 13:40:38 GMT"
+      "date": "Wed, 09 Sep 2026 07:59:25 GMT"
     },
     "/deepagents/quickstart": {
       "file": "deepagents__quickstart.md",
@@ -162,15 +162,15 @@
     },
     "/deepagents/webmcp": {
       "file": "deepagents__webmcp.md",
-      "sha256": "fca5a184ba5d7e511d3699b4164300dabb3225f19910d869d97fac6d5c17ab0d",
-      "bytes": 7483,
-      "lines": 153,
+      "sha256": "1c5ea6a18fa0b6913897d316c4a68ddf40e2c6cf2c65da2c1abf3bfafc1a27d4",
+      "bytes": 7486,
+      "lines": 165,
       "routes": [
         "/webmcp"
       ],
       "status": "ok",
       "age": 0,
-      "date": "Fri, 04 Sep 2026 13:40:37 GMT"
+      "date": "Wed, 09 Sep 2026 07:59:25 GMT"
     }
   },
   "sitemap": {
