@@ -364,4 +364,26 @@ export const PAGES = definePages([
     prompt: 'Plan a three-step research task on solar panel recycling, and report each step as you go.',
     waitAfterPromptMs: 5000,
   },
+  {
+    id: 'intelligence-quickstart',
+    name: 'Intelligence - Connect Intelligence in 5 minutes',
+    videoName: 'IntelligenceQuickstart',
+    docPath: 'intelligence/quickstart',
+    route: 'intelligence/quickstart',
+    // The doc's step 3: a plain `route.ts` with `mode: "single-route"` and one
+    // verb, where the page used to publish `[[...slug]]` and four.
+    ideFile: 'frontend/src/app/api/copilotkit-single/route.ts',
+    startLine: 1,
+    endLine: 37,
+    extraTabs: [
+      // Step 4: the matching provider flag.
+      {
+        filePath: 'frontend/src/components/single-endpoint-provider.tsx',
+        startLine: 29,
+        endLine: 46,
+      },
+    ],
+    prompt: 'Tell me a one-line joke.',
+    waitAfterPromptMs: 4000,
+  },
 ]);
