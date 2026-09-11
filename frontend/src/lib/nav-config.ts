@@ -158,6 +158,18 @@ export const NAV: NavGroup[] = [
         statusNote:
           "Both tabs are the page's code verbatim. The conditional tab was ⚠️ Partial until 04 Sep 2026 on an `enabled` callback destructuring an `eventValue` the event does not carry; that finding has been withdrawn.",
       },
+      {
+        path: "/generative-ui/frontend-cards",
+        hasDemo: true,
+        agentId: "sample_agent",
+        title: "Frontend-Driven Cards",
+        docPath: "/deepagents/generative-ui/frontend-cards",
+        summary:
+          "A card pushed into the transcript from frontend code as a `role: \"activity\"` message, which the agent never receives.",
+        status: "broken",
+        statusNote:
+          "As published, the page's bare `useAgent()` and `<CopilotChat />` ask for agent `default`, which this runtime does not register — after `/info` answers it throws \"Agent 'default' not found after runtime sync\" and the route cannot render. With `agentId=\"sample_agent\"` added the central claim holds (run payload carries only `user`), but a card added before the runtime connects is silently dropped (3/3).",
+      },
     ],
   },
   {
@@ -270,6 +282,30 @@ export const NAV: NavGroup[] = [
         statusNote:
           "Steps 3 and 4 are implemented against a third runtime mount at `/api/copilotkit-single`. Steps 1, 2 and 5 need a `CPK_INTELLIGENCE_API_KEY` from a hosted Intelligence project, which is an account-scoped resource this harness does not have.",
         hasDemo: true,
+      },
+      {
+        path: "/intelligence/memories",
+        hasDemo: true,
+        agentId: "sample_agent",
+        title: "Memories & Recall",
+        docPath: "/deepagents/intelligence/memories",
+        summary:
+          "Long-term memories per user or project, read and written from React with `useMemories`.",
+        status: "broken",
+        statusNote:
+          "The React snippet imports `useMemories` from the package root, which has no such export (TS2305). With the import fixed, on this repo's key-less (SSE) runtime the hook never sends a request: it reports `isAvailable: true` over an empty list, and a save fails in the browser with \"Runtime URL is not configured\". The undocumented `memory: { access }` mount answers 503 without a key.",
+      },
+      {
+        path: "/learning",
+        hasDemo: true,
+        agentId: "sample_agent",
+        title: "Learning",
+        docPath: "/deepagents/learning",
+        summary:
+          "Routing selected Threads into a Learning container from the runtime, for Insights and reviewed Skills.",
+        status: "partial",
+        statusNote:
+          "The page's runtime snippet is mounted verbatim at `/api/copilotkit-learning`. Its `CopilotKitIntelligence` constructor needs `CPK_INTELLIGENCE_API_KEY`, which this repo does not have, so it throws at module load and the mount answers 500 — neither agent can run. `agents` and `identifyUser` are undefined on the page; dashboard and CLI steps are not exercised.",
       },
     ],
   },

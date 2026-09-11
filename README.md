@@ -220,6 +220,11 @@ LangGraph `interrupt()` in a `createMiddleware` `beforeModel` hook, answered by 
 *Was an expected failure until 04 Sep 2026:* the conditional tab drawing no card at all, the `enabled` predicates throwing on `eventValue` before either handler could claim the event. That finding has been withdrawn; the `@ts-expect-error` annotations stay, because the *type* error behind it has not moved (§9 item 6).
 *Real failure:* either tab drawing no card — check the agent server is up, then re-read §9 item 6.
 
+**`/generative-ui/frontend-cards`** — ❌ **Broken as documented** on this runtime. New upstream 2026-09-11. A card pushed into the transcript from frontend code as a `role: "activity"` message, which is stripped from every run. The demo has two panes. The top one is steps 2 and 3 verbatim: nothing in them names an agent, so `useAgent()` and `<CopilotChat />` ask for `default`, which this runtime does not register — it throws `Agent 'default' not found after runtime sync` as soon as `/info` answers (unguarded, the whole route shows "This page couldn't load"; the pane is wrapped in an error boundary so the error prints in place). The bottom pane is the same provider plus `agentId="sample_agent"`, nothing else.
+*Try:* in the bottom pane click **Simulate: deployment finished**, then ask `Have you been shown any deployment card?`
+*Pass:* the top pane shows the `default` error (the finding); in the bottom pane the card renders, the probe row reads `agent.messages = activity, user` and `run payload = user` (read off the request that left the browser — works with no model key); with `OPENAI_API_KEY` set, the agent says it saw no card.
+*Fail:* no card in the bottom pane, or `activity` in the payload row. See §9 item 13.
+
 ### App Control
 
 **`/frontend-tools`** → `frontend_tools_agent`
@@ -261,6 +266,14 @@ A hand-built `StateGraph` with `input` / `output` schemas: `question` in and not
 
 **`/intelligence/quickstart`** — ⚠️ **Partial.** Steps 3 and 4 are implemented; steps 1, 2 and 5 are not. The 2026-09-09 sync rewrote step 3 from the multi-route handler to `mode: "single-route"` with a single `POST` export, and step 4 from `runtimeUrl` alone to `runtimeUrl` plus `useSingleEndpoint`. Neither needs a hosted project, so both are mounted now: `/api/copilotkit-single` takes the same runtime object as the multi-route mount, and `/intelligence/quickstart/demo-chat` drives it. Steps 1, 2 and 5 still open with `npx copilotkit@latest login` plus `project select`, which writes a `CPK_INTELLIGENCE_API_KEY` — an account-scoped resource this harness does not have, so the confirmation step has nothing to assert against. Three findings came out of the half that is testable, all on the route's page: the single endpoint accepts seven envelope methods and no thread, memory or annotation method is among them; single-route mode reports `threadEndpointsEnabled: false` from `/info`, which locks the Inspector thread list the page's last step tells you to check; and the page's own coding-agent prompt still instructs the reader to do the opposite of its manual steps. Still tracked as new because it is a genuinely new page; the rest of `/deepagents/intelligence/*` is the old `/deepagents/premium/*` set renamed, and stays out of scope.
 
+**`/intelligence/memories`** — ❌ **Broken as documented.** New upstream 2026-09-11. The page's React `MemoryList` does not compile (wrong import path — the verbatim file is kept and imported by nothing); the demo runs it with the import moved to `/v2`, beside a panel of what `useMemories()` reports and a **Save** button (`addMemory`, which the page never shows).
+*Try:* **Save**, then `Please remember that I prefer concise status updates.`, then switch to **With memory.access** and **Save** again.
+*What happens in this repo (no `CPK_INTELLIGENCE_API_KEY`, so the runtime is in SSE mode):* the list renders empty, the panel reads `isAvailable true · memories 0 · realtimeStatus connecting`, and Save fails in the browser with `Runtime URL is not configured` — no `/memories` request is ever sent. The second runtime (the main one plus the undocumented `memory: { access }` option) answers 503 without a key, and the hook shows the same thing. What sits behind the key is in Agno-react: with it, the documented runtime 404s every memory route and the `memory.access` one gets `403 MEMORY_NOT_ENTITLED`. See §9 item 14.
+
+**`/learning`** — ⚠️ **Partial** (blocked by the Intelligence key). New upstream 2026-09-11. The page's runtime snippet, verbatim, on its own mount at `/api/copilotkit-learning`, with the Deep Agent registered as `expense-agent` (which the selector assigns to `expense-review`) and as `sample_agent` (which it does not).
+*Try:* on `expense-agent`, `Review this expense: $42 team lunch, receipt attached.`; then on `sample_agent`, `Say hello in five words.`
+*What happens in this repo:* the snippet's `new CopilotKitIntelligence({ apiKey: process.env.CPK_INTELLIGENCE_API_KEY! })` throws at module load ("apiKey is required and cannot be blank"), so the mount answers 500; the panel's runtime row reads `error`, the composer will not send, and neither tab answers. The rest of the app is unaffected. With a key (Agno-react), `expense-agent` never answers — its Thread is assigned to a container that does not exist and the run fails with "Failed to initialize thread" — while the unassigned agent answers. The dashboard and CLI half (create a container, Run Learning, approve a Skill, `copilotkit skills download`) is not exercised. See §9 item 15.
+
 ---
 
 ## 8. Testing checklist / current status
@@ -276,6 +289,7 @@ Verified 2026-08-06 by driving every graph through the real `CopilotRuntime` rou
 | [generative-ui/tool-rendering](https://docs.copilotkit.ai/deepagents/generative-ui/tool-rendering) | `/generative-ui/tool-rendering` | `tool_rendering_agent` | ✅ Working | `useDefaultRenderTool` destructures a prop that doesn't exist |
 | [generative-ui/state-rendering](https://docs.copilotkit.ai/deepagents/generative-ui/state-rendering) | `/generative-ui/state-rendering` | `state_rendering_agent` | ✅ Working | Emit loop's caller is not shown by the page |
 | [.../your-components/interrupt-based](https://docs.copilotkit.ai/deepagents/generative-ui/your-components/interrupt-based) | `/generative-ui/your-components/interrupt-based` | `interrupt_agent`, `interrupt_multi_agent` | ✅ Working | Both tabs left as printed; the conditional finding was withdrawn 04 Sep 2026, the TS2339 behind it stands (item 6) |
+| [generative-ui/frontend-cards](https://docs.copilotkit.ai/deepagents/generative-ui/frontend-cards) | `/generative-ui/frontend-cards` | `sample_agent` (harness pane) | ❌ Broken | New 2026-09-11. As published asks for agent `default`, which this runtime lacks → render-time throw. With `agentId` added the payload carries only `user`; a card added before connect is lost (item 13) |
 | [frontend-tools](https://docs.copilotkit.ai/deepagents/frontend-tools) | `/frontend-tools` | `frontend_tools_agent` | ✅ Working | Page's TS is a comment; state field missing `zodState` |
 | [webmcp](https://docs.copilotkit.ai/deepagents/webmcp) | `/webmcp` | — | 🚧 Not started | Tracked for drift. Needs Chrome 149+ and the WebMCP origin trial |
 | [human-in-the-loop/governed-actions](https://docs.copilotkit.ai/deepagents/human-in-the-loop/governed-actions) | `/human-in-the-loop/governed-actions` | `sample_agent` | ✅ Working | Tool-call variant. `useInterrupt` half needs a backend that pauses a run; published schema compiles unchanged on zod 3 |
@@ -287,8 +301,10 @@ Verified 2026-08-06 by driving every graph through the real `CopilotRuntime` rou
 | [shared-state/state-inputs-outputs](https://docs.copilotkit.ai/deepagents/shared-state/state-inputs-outputs) | `/shared-state/state-inputs-outputs` | — | 📄 Reference | Graph filters correctly; JS dev server ignores `output`, so nothing to show live |
 | [shared-state/workflow-execution](https://docs.copilotkit.ai/deepagents/shared-state/workflow-execution) | `/shared-state/workflow-execution` | — | 📄 Reference | Upstream duplicate of the page above; nothing of its own to implement |
 | [intelligence/quickstart](https://docs.copilotkit.ai/deepagents/intelligence/quickstart) | `/intelligence/quickstart` | `sample_agent` | ⚠️ Partial | Single-route transport implemented and exercised; the hosted-project steps still need `CPK_INTELLIGENCE_API_KEY` |
+| [intelligence/memories](https://docs.copilotkit.ai/deepagents/intelligence/memories) | `/intelligence/memories` | `sample_agent` | ❌ Broken | New 2026-09-11. Import path wrong (TS2305); key-less runtime shows `isAvailable: true` over an empty list and saves fail with "Runtime URL is not configured" (item 14) |
+| [learning](https://docs.copilotkit.ai/deepagents/learning) | `/learning` | `sample_agent` as `expense-agent` + `sample_agent` | ⚠️ Partial | New 2026-09-11. Snippet mounted verbatim; throws at module load without `CPK_INTELLIGENCE_API_KEY` → route 500. `agents`/`identifyUser` undefined on the page (item 15) |
 
-**Totals:** 11 ✅ Working · 4 ⚠️ Partial · 2 📄 Reference (Input/Output Schemas, Workflow Execution) · 0 ❌ Broken · 1 🚧 Not started.
+**Totals:** 11 ✅ Working · 5 ⚠️ Partial · 2 📄 Reference (Input/Output Schemas, Workflow Execution) · 2 ❌ Broken · 1 🚧 Not started. 18 of the 21 rows have a demo route (not WebMCP, Input/Output Schemas or Workflow Execution); the three pages added on 2026-09-11 were verified 11 Sep 2026 on react-core/runtime 1.71.0 (lockfile 1.70.1) with no OpenAI or Intelligence key, so every agent reply on them was a `RUN_ERROR` locally.
 
 **Tracked without a demo.** The three 🚧 rows carry a route, a nav entry and a snapshot so drift is watched, but nothing is implemented behind them and the recorder does not touch them. The reason is on each route’s page and in §7. The rest of `/deepagents/intelligence/` is the old `/deepagents/premium/` set under a new prefix and stays in `doc-snapshot/manifest.json`’s `knownUnmapped` list.
 
@@ -360,6 +376,19 @@ It returns [state-inputs-outputs](https://docs.copilotkit.ai/deepagents/shared-s
 
 **12. Model ids vary across pages.**
 `openai:gpt-4o`, `gpt-5.4`, `gpt-4o-mini` all appear. Every agent here reads `OPENAI_MODEL`, defaulting to `gpt-4o`.
+
+### New upstream 2026-09-11 — identical under every integration prefix
+
+These three pages are byte-identical across `/agno`, `/mastra`, `/deepagents`, … once the slug is normalised, so there is no TypeScript/Python split. Verified 11 Sep 2026 on `@copilotkit/react-core` / `@copilotkit/runtime` 1.71.0 (what CI resolves; the lockfile pins 1.70.1), with **no `OPENAI_API_KEY` and no `CPK_INTELLIGENCE_API_KEY`** in this repo — agent replies therefore end in `RUN_ERROR: Missing credentials` locally, and nothing behind an Intelligence key is reproducible here. Where a finding needs a key, it is marked as coming from the Agno sibling repo, which has one.
+
+**13. Frontend-Driven Cards: the page's code crashes a runtime with no `default` agent.**
+[frontend-cards](https://docs.copilotkit.ai/deepagents/generative-ui/frontend-cards) step 2 renders `<CopilotChat />` and step 3 calls `useAgent()`, neither with an `agentId`, so both resolve to `"default"`. This runtime registers one agent per graph in `backend/langgraph.json` — and the Deep Agents Quickstart itself names its agent `sample_agent` — so once `/info` answers, `useAgent` throws during render: `Agent 'default' not found after runtime sync (runtimeUrl=/api/copilotkit). Known agents: [sample_agent, …]`, first from `<DeploymentWatcher />`. Next replaces the route with "This page couldn't load". The page never says which agent a bare `useAgent()` resolves to. It works in Agno-react only because that runtime registers `default`. With `agentId="sample_agent"` added (the demo's bottom pane, the only change) the central claim holds, checked on the outgoing request: `agent.messages` = `activity, user`, run payload to `/agent/sample_agent/run` = `user`. Two further gaps, both reproduced here: a card added before the runtime connects goes to a provisional agent (`isReady: false`) and is silently dropped when the real one arrives — 3/3 with `/info` held back 4 s; and step 3's component is never mounted by step 2, with a `wss://example.com/deployments` placeholder whose handshake fails.
+
+**14. Memories & Recall: the React snippet does not compile, and without Intelligence the hook reports an empty list rather than "unavailable".**
+[memories](https://docs.copilotkit.ai/deepagents/intelligence/memories) imports `useMemories` from `@copilotkit/react-core`, which has no such export on 1.70.1 or 1.71.0; it ships from `/v2`. That is TS2305 plus a knock-on TS7006, and under Next 16 a Turbopack compile error for any route importing it — the verbatim file is kept, `@ts-expect-error` on both, imported by nothing. The same wrong import is in the hook's own JSDoc `@example` in react-core 1.71.0, which is probably where the page got it. With the import fixed, on this repo's key-less runtime (SSE mode) the hook never sends a request: `CopilotKitCore` hands the memory store a context only when `/info` reports an Intelligence `wsUrl`, so `isAvailable` stays at its initial `true`, the page's `MemoryList` renders an empty list, `realtimeStatus` stays `connecting`, and `addMemory` rejects in the browser with `Runtime URL is not configured` — misleading, since the runtime URL is configured. The page says an unavailable deployment reads `isAvailable: false`. The second runtime in the demo adds `memory: { access }`, which the page never mentions and without which runtime 1.71.0 404s every memory route; here it has no key and answers 503. Behind the key (Agno-react): the documented runtime 404s, and with the option the platform answers `403 MEMORY_NOT_ENTITLED` while the hook again reports `isAvailable: true` over an empty list.
+
+**15. Learning: the snippet cannot load without a key, and leaves two identifiers undefined.**
+[learning](https://docs.copilotkit.ai/deepagents/learning)'s runtime snippet is mounted verbatim at `/api/copilotkit-learning`. `new CopilotKitIntelligence({ apiKey: process.env.CPK_INTELLIGENCE_API_KEY! })` throws at module load here — "CopilotKitIntelligence `apiKey` is required and cannot be blank" — so the mount answers 500 (`/info` and the single-endpoint `POST` both), the client reports `runtime_info_fetch_failed`, and neither agent can run. The page does send readers to the Intelligence quickstart first; the non-null assertion is what hides the requirement from the compiler. `agents` and `identifyUser` are used and never defined (supplied in `lib/learning-runtime.ts`, marked as the harness's). `getLearningContainerId` exists from runtime 1.70; this repo's 1.70.1 lockfile has it, 1.69.x does not, and the page states no floor. Behind the key (Agno-react): the example container `expense-review` does not exist, the platform refuses the Thread (`LEARNING_CONTAINER_NOT_FOUND`), the run 404s "Failed to initialize thread" and the chat shows nothing — far worse than the troubleshooting row's "A Thread never appears in the container".
 
 ### Where the TypeScript tabs are *better* than the Python ones
 
@@ -569,6 +598,7 @@ Grouped the way the doc nav groups them. Every link below was read in its **Type
 - [Tool Rendering](https://docs.copilotkit.ai/deepagents/generative-ui/tool-rendering)
 - [State Rendering](https://docs.copilotkit.ai/deepagents/generative-ui/state-rendering)
 - [Your Components · Interrupt-based](https://docs.copilotkit.ai/deepagents/generative-ui/your-components/interrupt-based)
+- [Frontend-Driven Cards](https://docs.copilotkit.ai/deepagents/generative-ui/frontend-cards) — new 2026-09-11
 
 **App Control**
 - [Frontend Tools](https://docs.copilotkit.ai/deepagents/frontend-tools)
@@ -577,6 +607,8 @@ Grouped the way the doc nav groups them. Every link below was read in its **Type
 
 **Intelligence**
 - [Quickstart](https://docs.copilotkit.ai/deepagents/intelligence/quickstart) — tracked for drift only
+- [Memories & Recall](https://docs.copilotkit.ai/deepagents/intelligence/memories) — new 2026-09-11
+- [Learning](https://docs.copilotkit.ai/deepagents/learning) — new 2026-09-11
 
 **Shared State**
 - [Reading agent state](https://docs.copilotkit.ai/deepagents/shared-state/in-app-agent-read)

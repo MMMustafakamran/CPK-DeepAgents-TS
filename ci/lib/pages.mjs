@@ -29,12 +29,20 @@ const PAGES_CONFIG = path.join(RECORDER_DIR, 'config', 'pages.config.ts');
  */
 export const PAGE_GROUPS = {
   getting_started: ['quickstart'],
-  threads: ['threads-drawer', 'headless-threads', 'threads-lifecycle', 'intelligence-quickstart'],
+  threads: [
+    'threads-drawer',
+    'headless-threads',
+    'threads-lifecycle',
+    'intelligence-quickstart',
+    'intelligence-memories',
+    'learning',
+  ],
   generative_ui: [
     'tool-rendering',
     'state-rendering',
     'interrupt-single',
     'interrupt-conditional',
+    'frontend-cards',
   ],
   app_control: ['frontend-tools', 'human-in-the-loop-governed-actions'],
   shared_state: ['in-app-agent-read', 'in-app-agent-write'],

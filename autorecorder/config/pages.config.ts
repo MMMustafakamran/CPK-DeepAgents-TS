@@ -33,7 +33,9 @@
  * exist to show that: Reading agent state, Writing agent state, and the
  * prebuilt tab of Predictive State Updates. The Python sibling files all three
  * identically — this repo had been recording the first and third as `[PASS]`
- * because nothing in their takes asserted the panel that stays empty.
+ * because nothing in their takes asserted the panel that stays empty. The
+ * three pages added on 2026-09-11 (Frontend-Driven Cards, Memories, Learning)
+ * carry one too, at the end of the list.
  * `knownIssue` is what makes the run say `[ISSUE]` rather than `[PASS]`, and it
  * is the same object `ci/build-report.mjs` renders into the daily report — so
  * the sentence typed into Notepad on video and the row that goes to the manager
@@ -422,5 +424,173 @@ export const PAGES = definePages([
       'Now permanently delete the acme@example.com customer record, but check with me before it goes through.',
     ],
     waitAfterPromptMs: 6000,
+  },
+
+  // -- Added 2026-09-11: three pages new upstream, identical under every
+  // framework prefix. After every existing doc page so no clip is renumbered.
+  // All three reproduce a defect in this repo, so all three carry a
+  // `knownIssue`. None of the three is about the reply: where the backend has
+  // no OPENAI_API_KEY (a local run) the handlers note the silence and go on.
+  {
+    id: 'frontend-cards',
+    name: 'Generative UI - Frontend-Driven Cards',
+    videoName: 'FrontendCards',
+    docPath: 'generative-ui/frontend-cards',
+    route: 'generative-ui/frontend-cards',
+    // Step 1: the renderer, verbatim.
+    ideFile: 'frontend/src/app/generative-ui/frontend-cards/event-card.tsx',
+    startLine: 7,
+    endLine: 27,
+    extraTabs: [
+      // Step 2: registered on the provider, props as published -- the pane
+      // that throws, because nothing in it names an agent.
+      {
+        filePath: 'frontend/src/app/generative-ui/frontend-cards/demo-chat/page.tsx',
+        startLine: 210,
+        endLine: 218,
+      },
+      // Step 3: addMessage with role "activity", verbatim. Its bare
+      // `useAgent()` is the first thing to throw.
+      {
+        filePath: 'frontend/src/app/generative-ui/frontend-cards/deployment-watcher.tsx',
+        startLine: 16,
+        endLine: 38,
+      },
+    ],
+    prompt:
+      'Have you been shown any deployment card in this conversation? List the roles of every message you received.',
+    waitAfterPromptMs: 4000,
+    // Reproduced 11 Sep 2026 on react-core/runtime 1.71.0. Integration-specific:
+    // Agno's runtime registers `default`, so the same code runs there.
+    knownIssue: {
+      area: 'Deep Agents - Generative UI - Frontend-Driven Cards',
+      problem:
+        "The page's code, as published, crashes the route. Step 2's `<CopilotChat />` and step 3's " +
+        '`useAgent()` name no agent, so both ask for `default`; this runtime registers `sample_agent` ' +
+        "(as the Deep Agents Quickstart does) and no `default`, and once `/info` answers `useAgent` throws " +
+        "\"Agent 'default' not found after runtime sync\" during render. With `agentId=\"sample_agent\"` added " +
+        'the card renders and the run payload carries only `user`, as documented.',
+      impact:
+        'A reader who followed this integration\'s Quickstart gets a blank "This page couldn\'t load" on the ' +
+        'first render, from a page that never mentions agent ids. Separately, a card added before the ' +
+        'runtime connects is silently dropped (reproduced 3/3 with `/info` delayed).',
+      likelyCause:
+        'The page is shared verbatim across every integration and assumes a runtime with a `default` ' +
+        'agent. Nothing on it says what a bare `useAgent()` / `<CopilotChat />` resolves to.',
+      note: [
+        'frontend cards - the page code crashes on this runtime',
+        '',
+        "top pane is steps 2 + 3 as published. no agentId anywhere",
+        "-> Agent 'default' not found after runtime sync. whole route dies without the boundary",
+        '',
+        'bottom pane = same thing + agentId sample_agent',
+        'card renders, payload row says only user went out. so the idea works,',
+        'the snippet just assumes a default agent',
+      ].join('\n'),
+    },
+  },
+  {
+    id: 'intelligence-memories',
+    name: 'Intelligence - Memories & Recall',
+    videoName: 'Memories',
+    docPath: 'intelligence/memories',
+    route: 'intelligence/memories',
+    // The page's React component, verbatim -- with the two compiler errors its
+    // import produces acknowledged in place.
+    ideFile: 'frontend/src/app/intelligence/memories/memory-list.tsx',
+    startLine: 22,
+    endLine: 45,
+    extraTabs: [
+      // The option the page never mentions, and without which every memory
+      // route 404s at the runtime once Intelligence is on.
+      {
+        filePath: 'frontend/src/app/api/copilotkit-memory/[[...slug]]/route.ts',
+        startLine: 39,
+        endLine: 59,
+      },
+    ],
+    prompt: 'Please remember that I prefer concise status updates.',
+    waitAfterPromptMs: 3000,
+    knownIssue: {
+      area: 'Deep Agents - Intelligence - Memories & Recall',
+      problem:
+        "The page's React snippet does not compile: it imports `useMemories` from `@copilotkit/react-core`, " +
+        'which has no such export (only `/v2` does). With the import fixed, on this repo\'s runtime (no ' +
+        'Intelligence key, SSE mode) the hook never sends a memory request: it reports `isAvailable: true` ' +
+        'over an empty list, and saving fails in the browser with "Runtime URL is not configured".',
+      impact:
+        'Memory cannot be used from React as documented, and a runtime without memory looks exactly like ' +
+        'a user with no memories -- the page says it should read `isAvailable: false`. The error message ' +
+        'points at the runtime URL, which is configured.',
+      likelyCause:
+        'Wrong entry point on the page (copied from the hook\'s own JSDoc example). The core only gives the ' +
+        'memory store a context when `/info` reports an Intelligence `wsUrl`, and the hook only flips ' +
+        '`isAvailable` on 404/501. With a key, runtime 1.71.0 additionally hides memory routes unless ' +
+        '`memory: { access }` is set, which the page never mentions (observed in Agno-react; not ' +
+        'reproducible here without a key).',
+      note: [
+        'memories - wrong import, then an empty list that means nothing',
+        '',
+        'page imports useMemories from react-core root. not exported there, only /v2',
+        'with /v2: isAvailable true, 0 memories, realtime stuck on connecting',
+        'save -> "Runtime URL is not configured". no request ever left the browser',
+        '',
+        'memory.access runtime (the option the page never mentions) is 503 here, no key',
+      ].join('\n'),
+    },
+  },
+  {
+    id: 'learning',
+    name: 'Intelligence - Learning',
+    videoName: 'Learning',
+    docPath: 'learning',
+    route: 'learning',
+    // The page's runtime snippet, verbatim, and the two identifiers it leaves
+    // undefined supplied above it.
+    ideFile: 'frontend/src/lib/learning-runtime.ts',
+    startLine: 37,
+    endLine: 69,
+    extraTabs: [
+      // Where it is mounted: its own route, so the page's code cannot take
+      // down the app's main runtime.
+      {
+        filePath: 'frontend/src/app/api/copilotkit-learning/[[...slug]]/route.ts',
+        startLine: 1,
+        endLine: 24,
+      },
+    ],
+    prompt: 'Review this expense: $42 team lunch at Cafe Rio, receipt attached. Approve or flag it?',
+    // Turn 2 is the control on `sample_agent`, which the selector assigns nowhere.
+    prompts: [
+      'Review this expense: $42 team lunch at Cafe Rio, receipt attached. Approve or flag it?',
+      'Say hello in five words.',
+    ],
+    waitAfterPromptMs: 3000,
+    knownIssue: {
+      area: 'Deep Agents - Intelligence - Learning',
+      problem:
+        "The page's runtime snippet cannot load in this repo: `new CopilotKitIntelligence({ apiKey: " +
+        'process.env.CPK_INTELLIGENCE_API_KEY! })` throws at module load ("apiKey is required and cannot ' +
+        'be blank") because there is no Intelligence key, so `/api/copilotkit-learning` answers 500 and ' +
+        'neither agent can run. The snippet also uses `agents` and `identifyUser` without defining them.',
+      impact:
+        'Nothing past the constructor is testable here -- assignment, the container, Insights and Skills ' +
+        'all sit behind a key this harness does not have. The non-null assertion hides the requirement ' +
+        'from the compiler.',
+      likelyCause:
+        'Expected without a key; the page does send you to the Intelligence quickstart first. What sits ' +
+        'behind it was observed in Agno-react: the example container `expense-review` does not exist, and ' +
+        'every run on the assigned agent fails with "Failed to initialize thread" while the chat shows nothing.',
+      note: [
+        'learning - page runtime never loads here',
+        '',
+        'mounted the snippet verbatim on its own route',
+        'no CPK_INTELLIGENCE_API_KEY -> constructor throws -> route is 500',
+        'runtime row says error, prompt sits in the box, neither tab answers',
+        '',
+        'also: agents + identifyUser are never defined on the page',
+      ].join('\n'),
+      expectsNoResponse: true,
+    },
   },
 ]);

@@ -32,8 +32,9 @@
  * daily report only see what goes through `ctx`.
  *
  * ── Handlers for pages that reproduce a defect ─────────────────────────────
- * Three pages here carry a `knownIssue` — both shared-state routes and the
- * prebuilt tab of Predictive State Updates — and their handlers have one extra
+ * Six pages here carry a `knownIssue` — both shared-state routes, the prebuilt
+ * tab of Predictive State Updates, and the three pages added 2026-09-11
+ * (Frontend-Driven Cards, Memories, Learning) — and their handlers have one extra
  * obligation: make the defect visible, then write it down. Two of the three
  * also carry a narration track in `autorecorder/audio/`, muxed on after the
  * recording; nothing in the handler knows about that.
@@ -70,12 +71,15 @@ import { type ActionContext, type PageActionHandler, type PageRecordConfig } fro
 import { runStandardAction } from '../core/actions';
 import { type Page } from 'playwright';
 
+import { runFrontendCardsAction } from './frontend-cards.action';
 import { runFrontendToolsAction } from './frontend-tools.action';
 import { runGovernedActionsAction } from './governed-actions.action';
 import {
   runInterruptConditionalAction,
   runInterruptSingleAction,
 } from './interrupt.action';
+import { runLearningAction } from './learning.action';
+import { runMemoriesAction } from './memories.action';
 import {
   runPredictiveManualAction,
   runPredictivePrebuiltAction,
@@ -109,6 +113,12 @@ export const ACTION_MAP: Record<string, PageActionHandler> = {
   'predictive-prebuilt': runPredictivePrebuiltAction,
   'predictive-manual': runPredictiveManualAction,
   'predictive-tool': runPredictiveToolAction,
+
+  // Added 2026-09-11 with the three pages new upstream. All three carry a
+  // `knownIssue` in this repo and type their Notepad note at the end.
+  'frontend-cards': runFrontendCardsAction,
+  'intelligence-memories': runMemoriesAction,
+  learning: runLearningAction,
 };
 
 export async function executePageAction(

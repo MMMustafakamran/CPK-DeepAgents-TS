@@ -40,11 +40,11 @@ on:
         type: boolean
         default: false
       group_threads:
-        description: 'Threads & Intelligence — Threads Drawer, Headless Threads, Thread & History Lifecycle, Intelligence Quickstart'
+        description: 'Threads & Intelligence — Threads Drawer, Headless Threads, Thread & History Lifecycle, Intelligence Quickstart, Memories, Learning'
         type: boolean
         default: false
       group_generative_ui:
-        description: 'Generative UI — Tool Rendering, State Rendering, Interrupt-based (single + conditional)'
+        description: 'Generative UI — Tool Rendering, State Rendering, Interrupt-based (single + conditional), Frontend-Driven Cards'
         type: boolean
         default: false
       group_app_control:
