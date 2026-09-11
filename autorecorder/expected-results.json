@@ -5,6 +5,15 @@
   "updatedAt": "2026-09-11",
   "ignoreNotes": [],
   "pages": {
+    "frontend-cards": {
+      "status": "pass",
+      "reason": "accepted from run on 2026-09-11 (untracked)",
+      "notes": [
+        "console %o %s Error: useAgent: Agent 'default' not found after runtime sync (runtimeUrl=",
+        "console Agent error: <n> You have no credits remaining. Add credits to continue using th",
+        "console Error (agent_run_error_event): Error: <n> You have no credits remaining. Add cre"
+      ]
+    },
     "frontend-tools": {
       "status": "pass",
       "reason": "Tested-Report 2026-09-11: ✅"
@@ -15,7 +24,14 @@
     },
     "human-in-the-loop-governed-actions": {
       "status": "pass",
-      "reason": "Tested-Report 2026-09-11: ✅ (Governed Actions)"
+      "reason": "Tested-Report 2026-09-11: ✅ (Governed Actions) | accepted from run on 2026-09-11 (notes-changed)",
+      "notes": [
+        "No approval card on the \"Approve and run\" turn -- the model did not call the tool.",
+        "No approval card on the \"Reject\" turn -- the model did not call the tool.",
+        "The agent never answered after the \"Approve and run\" turn.",
+        "console Agent error: <n> You have no credits remaining. Add credits to continue using th",
+        "console Error (agent_run_error_event): Error: <n> You have no credits remaining. Add cre"
+      ]
     },
     "in-app-agent-read": {
       "status": "pass",
@@ -26,6 +42,17 @@
       "reason": "DISAGREES with Tested-Report (Writing Agent State, JS column: ❌ Same issue — language toggle doesn't update chat, stays English) — review. Recorder marks success with outcome=issue and the warning matches the report; machine signature is pass.",
       "notes": [
         "Click 1 left the label on \"Language: english\", not spanish. Most likely a recompile reset the state;"
+      ]
+    },
+    "intelligence-memories": {
+      "status": "pass",
+      "reason": "accepted from run on 2026-09-11 (untracked)",
+      "notes": [
+        "Memories: the agent never answered. Expected only where backend/.env has no OPENAI_API_KEY (RUN_ERRO",
+        "console 503 Service Unavailable",
+        "console Agent error: <n> You have no credits remaining. Add credits to continue using th",
+        "console Error (agent_run_error_event): Error: <n> You have no credits remaining. Add cre",
+        "console Error (runtime_info_fetch_failed): Error: Runtime info request failed with statu"
       ]
     },
     "intelligence-quickstart": {
@@ -50,6 +77,14 @@
     "interrupt-single": {
       "status": "pass",
       "reason": "DISAGREES with Tested-Report (Interrupt-Based, JS column: ❌) — review. CI 2026-09-09: pass with no notes."
+    },
+    "learning": {
+      "status": "pass",
+      "reason": "accepted from run on 2026-09-11 (untracked)",
+      "notes": [
+        "console 500 Internal Server Error",
+        "console Error (runtime_info_fetch_failed): Error: Runtime info request failed with statu"
+      ]
     },
     "predictive-manual": {
       "status": "pass",
