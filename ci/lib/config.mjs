@@ -48,18 +48,6 @@ export const FRONTEND_PORT = Number(process.env.FRONTEND_PORT || 3000);
 /** `langgraph dev` answers `/ok` with `{"ok":true}`. It has no `/health`. */
 export const BACKEND_HEALTH_URL = `http://127.0.0.1:${BACKEND_PORT}/ok`;
 export const FRONTEND_URL = `http://127.0.0.1:${FRONTEND_PORT}`;
-
-/**
- * Routes compiled before recording starts. Next.js builds routes on demand, so
- * the first hit of each is slow enough to blow the recorder's preflight
- * timeout. Warming them keeps that cost out of the recording itself.
- *
- * These are the routes whose takes are click-driven rather than
- * prompt-and-wait, which is where a cold compile actually costs something: a
- * rebuild landing after a tab or a toggle has been clicked remounts the
- * component and drops the state the click just wrote.
- */
-export const WARMUP_ROUTES = [
   '/',
   '/quickstart/demo-chat',
   '/shared-state/predictive-state-updates/demo-chat',
