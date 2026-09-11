@@ -124,11 +124,11 @@ function MemoryProbe() {
 const RUNTIMES = {
   documented: {
     label: "As documented · /api/copilotkit",
-    note: "The runtime the Quickstart builds. The page adds nothing to it.",
+    url: "/api/copilotkit",
   },
   "memory-access": {
     label: "With memory.access · /api/copilotkit-memory",
-    note: "Same runtime plus the `memory: { access }` option the page never mentions.",
+    url: "/api/copilotkit-memory",
   },
 } as const;
 type RuntimeKey = keyof typeof RUNTIMES;
@@ -137,11 +137,13 @@ function Panels({ runtime }: { runtime: RuntimeKey }) {
   return (
     <div className="flex h-full flex-col">
       <div className="shrink-0 border-b border-slate-200 px-3 pt-3 text-xs text-slate-500 dark:border-slate-800">
-        <p data-testid="memory-runtime">{RUNTIMES[runtime].note}</p>
+        <p data-testid="memory-runtime" className="font-mono">
+          runtime {RUNTIMES[runtime].url}
+        </p>
         <div className="grid gap-4 py-3 text-sm md:grid-cols-2">
           <section>
             <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-              The page&apos;s MemoryList (import → /v2)
+              MemoryList (import → /v2)
             </h2>
             <div data-testid="memory-list">
               <MemoryList />
@@ -149,7 +151,7 @@ function Panels({ runtime }: { runtime: RuntimeKey }) {
           </section>
           <section>
             <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-              What the hook reports
+              useMemories()
             </h2>
             <MemoryProbe />
           </section>

@@ -1,10 +1,10 @@
 import { type Page } from 'playwright';
 import { AgentSilentError, promptsFor, sendPrompt, waitForAgentResponseCompletion } from '../core/actions';
-import { writeIssueNote } from '../core/issue-note';
 import { sleep } from '../core/overlays/cursor';
 import { type ActionContext, type PageActionHandler, type PageRecordConfig } from '../core/types';
 import { SELECTORS } from '../config/selectors.config';
-import { glideClick, glideTo, replyOrNote, settle, waitForText } from './glide-click';
+import { evidenceThenIssueNote, glideClick, glideTo, replyOrNote, settle, waitForText } from './glide-click';
+import { markServerLogs } from './error-evidence';
 
 /**
  * Learning -- one turn on the agent the page's selector assigns, one on the
@@ -24,6 +24,12 @@ import { glideClick, glideTo, replyOrNote, settle, waitForText } from './glide-c
  * "Failed to initialize thread" and the chat shows nothing, and `sample_agent`
  * (the control, which the selector assigns nowhere) answers.
  */
+
+/**
+ * Server lines that belong to this take: the module-load throw from the
+ * page's `CopilotKitIntelligence` constructor and the 500s it causes.
+ */
+const RELEVANT = /learning|LEARNING_|expense-agent|initialize thread|CopilotKitIntelligence/i;
 
 type RuntimeState = 'connected' | 'error' | string;
 
@@ -56,9 +62,10 @@ async function tryToSend(page: Page, prompt: string): Promise<boolean> {
 export const runLearningAction: PageActionHandler = async (
   page: Page,
   config: PageRecordConfig,
-  _rootPath: string,
+  rootPath: string,
   ctx: ActionContext,
 ) => {
+  const logs = markServerLogs(rootPath);
   const prompts = promptsFor(config);
 
   console.log('   [Learning] 1/2: expense-agent -> "expense-review"...');
@@ -100,7 +107,5 @@ export const runLearningAction: PageActionHandler = async (
     await replyOrNote(page, ctx, controlCount, config.waitAfterPromptMs ?? 3000, 'Learning (sample_agent)');
   }
 
-  if (config.knownIssue) {
-    await writeIssueNote(page, config.id, config.knownIssue);
-  }
+  await evidenceThenIssueNote(page, config, logs, RELEVANT);
 };

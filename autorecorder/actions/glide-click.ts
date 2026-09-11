@@ -1,7 +1,9 @@
 import { type Locator, type Page } from 'playwright';
 import { AgentSilentError, waitForAgentResponseCompletion } from '../core/actions';
+import { writeIssueNote } from '../core/issue-note';
 import { humanClick, humanGlide, sleep } from '../core/overlays/cursor';
-import { type ActionContext } from '../core/types';
+import { type ActionContext, type PageRecordConfig } from '../core/types';
+import { type LogMark, serverLogSince, showNextIssues, showServerTerminal } from './error-evidence';
 
 /**
  * Small helpers shared by the three handlers added on 2026-09-11 (Frontend-
@@ -70,6 +72,41 @@ export async function visibleWithin(target: Locator, timeoutMs: number): Promise
 export async function settle(page: Page, ms = 1200): Promise<void> {
   await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
   await sleep(ms);
+}
+
+/**
+ * The end of every defect take here: the real Next.js issues overlay, then the
+ * dev servers' own lines from this take, then the ONE note -- the page's
+ * `knownIssue.note`, typed by core `writeIssueNote`. Same order as Agno-react's
+ * `showEvidence`, but the explanation comes from the config rather than a
+ * second note, because this repo's report and Notepad share that object.
+ *
+ * `extraLines(serverLines)` adds what only this take knows (a save result, a
+ * missing model key) to the note, before the version lines.
+ */
+export async function evidenceThenIssueNote(
+  page: Page,
+  config: PageRecordConfig,
+  logs: LogMark,
+  relevant: RegExp,
+  extraLines: (serverLines: string[]) => string[] = () => [],
+): Promise<void> {
+  const overlay = await showNextIssues(page);
+  console.log(`   [evidence] Next overlay: ${overlay ?? '(no issues badge)'}`);
+  const serverLines = serverLogSince(logs, { relevant });
+  console.log(`   [evidence] ${serverLines.length} server line(s) on screen`);
+  for (const l of serverLines) console.log(`      | ${l}`);
+  await showServerTerminal(page, serverLines);
+  if (config.knownIssue) {
+    await writeIssueNote(page, config.id, config.knownIssue, { extraLines: extraLines(serverLines) });
+  }
+}
+
+/** Take-specific note line for a run that died on the model key. */
+export function missingKeyLine(serverLines: string[]): string[] {
+  return serverLines.some((l) => /Missing credentials/.test(l))
+    ? ['(red toast = backend has no OPENAI_API_KEY here, the reply dies. not the finding)']
+    : [];
 }
 
 /**

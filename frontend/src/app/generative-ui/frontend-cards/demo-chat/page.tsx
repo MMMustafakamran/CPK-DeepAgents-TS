@@ -78,7 +78,7 @@ class CrashBoundary extends Component<{ children: ReactNode }, { error: Error | 
           data-testid="cards-crash"
           className="h-full overflow-auto bg-rose-50 p-3 font-mono text-xs text-rose-800 dark:bg-rose-950/40 dark:text-rose-200"
         >
-          <p className="font-sans font-semibold">The page&apos;s code threw during render:</p>
+          <p className="font-sans font-semibold">Uncaught error</p>
           <p className="mt-1 break-words">{this.state.error.message}</p>
         </div>
       );
@@ -136,11 +136,6 @@ function CardControls({ agentId }: { agentId: string }) {
         >
           Simulate: deployment finished
         </button>
-        <p className="text-xs text-slate-500">
-          Adds a <code>role: &quot;activity&quot;</code> message with{" "}
-          <code>activityType: &quot;app-event-card&quot;</code> — step 3&apos;s{" "}
-          <code>addMessage</code>, from a click.
-        </p>
       </div>
 
       <table className="mt-3 w-full text-left text-xs">
@@ -174,7 +169,7 @@ function CardControls({ agentId }: { agentId: string }) {
               }`}
             >
               {payload
-                ? `${payload.roles.join(", ")}  (${payload.at})${leaked ? "  ← activity reached the agent" : ""}`
+                ? `${payload.roles.join(", ")}  (${payload.at})`
                 : "no run sent yet"}
             </td>
           </tr>
@@ -196,15 +191,11 @@ export default function Page() {
   return (
     <DemoFrame
       parentPath="/generative-ui/frontend-cards"
-      subtitle="activity messages · never sent to the agent"
+      subtitle="activity messages"
     >
       <div className="flex h-full flex-col">
         <section data-testid="cards-as-published" className="flex h-36 shrink-0 flex-col border-b-4 border-slate-200 dark:border-slate-800">
-          <PaneLabel>
-            <strong>As published</strong> — steps 2 and 3 verbatim. No <code>agentId</code>, so{" "}
-            <code>useAgent()</code> and <code>&lt;CopilotChat /&gt;</code> ask for{" "}
-            <code>&quot;default&quot;</code>.
-          </PaneLabel>
+          <PaneLabel>Page code (steps 2+3)</PaneLabel>
           <div className="min-h-0 flex-1 overflow-hidden">
             <CrashBoundary>
               {/* [2] frontend cards: register the renderer on the provider */}
@@ -221,9 +212,7 @@ export default function Page() {
 
         <section className="flex min-h-0 flex-1 flex-col">
           <PaneLabel>
-            <strong>Harness</strong> — the same provider props, plus{" "}
-            <code>agentId=&quot;{HARNESS_AGENT_ID}&quot;</code> on <code>useAgent</code> and{" "}
-            <code>&lt;CopilotChat&gt;</code>: the one id this runtime registers.
+            Page code (steps 2+3) + <code>agentId=&quot;{HARNESS_AGENT_ID}&quot;</code>
           </PaneLabel>
           <div className="min-h-0 flex-1">
             <CopilotKit runtimeUrl="/api/copilotkit" renderActivityMessages={[eventCardRenderer]}>

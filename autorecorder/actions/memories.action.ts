@@ -1,9 +1,9 @@
 import { type Page } from 'playwright';
 import { promptsFor, sendPrompt } from '../core/actions';
-import { writeIssueNote } from '../core/issue-note';
 import { sleep } from '../core/overlays/cursor';
 import { type ActionContext, type PageActionHandler, type PageRecordConfig } from '../core/types';
-import { glideClick, glideTo, replyOrNote, settle, visibleWithin, waitForText } from './glide-click';
+import { evidenceThenIssueNote, glideClick, missingKeyLine, glideTo, replyOrNote, settle, visibleWithin, waitForText } from './glide-click';
+import { markServerLogs } from './error-evidence';
 
 /**
  * Memories & Recall -- the documented runtime, then the undocumented option.
@@ -21,6 +21,29 @@ import { glideClick, glideTo, replyOrNote, settle, visibleWithin, waitForText } 
  * Nothing here fails the take on what the saves return: that is the finding.
  * The handler only fails when a surface it needs to film is missing.
  */
+
+/** Memory routes, platform codes, and (backend origin line only) why the chat turn dies here. */
+const RELEVANT = /memor|MEMORY_|^Error: Missing credentials/i;
+
+/**
+ * Waits until the hook has heard back from the runtime: `isAvailable` flips to
+ * false (a 404) or an error shows up (ported from Agno-react). `isLoading` is
+ * no signal -- it reads false before the memory store has started.
+ *
+ * Capped at 8s here, not Agno's 25s. This repo has no Intelligence key, so the
+ * core never hands the memory store a context (that needs an Intelligence
+ * `wsUrl` in `/info`): nothing is ever heard back, `isAvailable` stays true and
+ * `error` null until a save, and the full cap would just be dead air, twice.
+ */
+async function settledMemory(page: Page, capMs = 8000): Promise<void> {
+  const deadline = Date.now() + capMs;
+  while (Date.now() < deadline) {
+    const available = (await page.locator('[data-testid=memory-isAvailable]').textContent().catch(() => '')) ?? '';
+    const error = (await page.locator('[data-testid=memory-error]').textContent().catch(() => '')) ?? '';
+    if (available.trim() === 'false' || (error.trim() && error.trim() !== 'null')) return;
+    await sleep(500);
+  }
+}
 
 async function save(page: Page, ctx: ActionContext, label: string): Promise<string> {
   const button = page.locator('[data-testid=memory-save]');
@@ -41,14 +64,15 @@ async function save(page: Page, ctx: ActionContext, label: string): Promise<stri
 export const runMemoriesAction: PageActionHandler = async (
   page: Page,
   config: PageRecordConfig,
-  _rootPath: string,
+  rootPath: string,
   ctx: ActionContext,
 ) => {
+  const logs = markServerLogs(rootPath);
   const prompts = promptsFor(config);
 
   // Pass 1 -- as documented.
   console.log('   [Memories] 1/2: the runtime the page describes...');
-  await waitForText(page.locator('[data-testid=memory-isLoading]'), (t) => t === 'false', 20_000);
+  await settledMemory(page);
   await glideTo(page, page.locator('[data-testid=memory-list]'), 1500);
   const documented = await save(page, ctx, 'documented runtime');
   console.log(`   [Memories] save on the documented runtime: ${documented}`);
@@ -61,12 +85,14 @@ export const runMemoriesAction: PageActionHandler = async (
   await glideClick(page, page.locator('[data-testid=memory-runtime-memory-access]'));
   await sleep(500);
   await settle(page, 1500);
-  await waitForText(page.locator('[data-testid=memory-isLoading]'), (t) => t === 'false', 20_000);
+  await settledMemory(page);
   await glideTo(page, page.locator('[data-testid=memory-list]'), 1500);
   const opened = await save(page, ctx, 'memory.access runtime');
   console.log(`   [Memories] save with memory.access: ${opened}`);
 
-  if (config.knownIssue) {
-    await writeIssueNote(page, config.id, config.knownIssue);
-  }
+  await evidenceThenIssueNote(page, config, logs, RELEVANT, (lines) => [
+    `save, as documented: ${documented}`,
+    `save, with memory.access: ${opened}`,
+    ...missingKeyLine(lines),
+  ]);
 };

@@ -1,9 +1,9 @@
 import { type Page } from 'playwright';
 import { promptsFor, sendPrompt } from '../core/actions';
-import { writeIssueNote } from '../core/issue-note';
 import { sleep } from '../core/overlays/cursor';
 import { type ActionContext, type PageActionHandler, type PageRecordConfig } from '../core/types';
-import { glideClick, glideTo, replyOrNote, visibleWithin, waitForText } from './glide-click';
+import { evidenceThenIssueNote, glideClick, missingKeyLine, glideTo, replyOrNote, visibleWithin, waitForText } from './glide-click';
+import { markServerLogs } from './error-evidence';
 
 /**
  * Frontend-Driven Cards -- the page as published, then the page with the one
@@ -28,14 +28,25 @@ import { glideClick, glideTo, replyOrNote, visibleWithin, waitForText } from './
  * not what this take is about. Clicking early would film that instead, randomly.
  */
 
+/**
+ * Server lines that belong to this take. The crash itself is not among them:
+ * it happens at page load, before the take marks the logs, and Next forwards
+ * only a `[browser] Agent default not found` warning, which carries no error
+ * word -- the overlay is where it shows. What the servers do log is why the
+ * run then dies here: the LangGraph backend's own `Error: Missing credentials`
+ * (no OpenAI key). Only that origin line, not the half-dozen browser echoes.
+ */
+const RELEVANT = /activity|app-event-card|frontend-cards|\/agent\/[^/]+\/run|^Error: Missing credentials/;
+
 const CARD = '.rounded-lg.border.p-4:has-text("Deployment finished")';
 
 export const runFrontendCardsAction: PageActionHandler = async (
   page: Page,
   config: PageRecordConfig,
-  _rootPath: string,
+  rootPath: string,
   ctx: ActionContext,
 ) => {
+  const logs = markServerLogs(rootPath);
   // 1 -- as published.
   console.log('   [Frontend Cards] 1/2: the page as published (agent "default")...');
   const crash = page.locator('[data-testid=cards-crash]');
@@ -82,7 +93,5 @@ export const runFrontendCardsAction: PageActionHandler = async (
   }
   await glideTo(page, payload, 2500);
 
-  if (config.knownIssue) {
-    await writeIssueNote(page, config.id, config.knownIssue);
-  }
+  await evidenceThenIssueNote(page, config, logs, RELEVANT, missingKeyLine);
 };
