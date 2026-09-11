@@ -1,7 +1,7 @@
 import { type Page } from 'playwright';
 import { sendPrompt, waitForAgentResponseCompletion } from '../core/actions';
 import { writeIssueNote } from '../core/issue-note';
-import { humanClick, humanGlide, sleep } from '../core/overlays/cursor';
+import { beat, humanClick, humanGlide, sleep } from '../core/overlays/cursor';
 import { type ActionContext, type PageActionHandler, type PageRecordConfig } from '../core/types';
 
 /**
@@ -63,7 +63,7 @@ async function clickLanguageToggle(ctx: ActionContext, page: Page): Promise<void
 async function toggleToSpanish(ctx: ActionContext, page: Page): Promise<boolean> {
   for (let attempt = 1; attempt <= 3; attempt++) {
     await clickLanguageToggle(ctx, page);
-    await sleep(900);
+    await beat(900);
 
     const text =
       (await page
@@ -178,14 +178,14 @@ export const runSharedStateWriteAction: PageActionHandler = async (
   // rebuild arriving after the toggle remounts the component and drops the
   // write, which is exactly how a take ends up prompting in English.
   await page.waitForLoadState('networkidle').catch(() => {});
-  await sleep(1200);
+  await beat(1200);
 
   console.log(`   [Shared State Write] Clicking "Toggle Language"...`);
   await toggleToSpanish(ctx, page);
 
   // The label and the raw state both flip here. That is the point: the write
   // lands on the frontend, so whatever fails next is not the button.
-  await sleep(1000);
+  await beat(1000);
   await restOn(page, 'p:has-text("Language:")', 1800, 'Language now reads spanish');
   await restOn(page, 'pre', 2000, 'Raw agent.state carries the write');
 

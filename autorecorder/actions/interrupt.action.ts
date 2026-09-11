@@ -1,7 +1,7 @@
 import { type Page } from 'playwright';
 import { AgentSilentError, promptsFor, sendPrompt, waitForAgentResponseCompletion } from '../core/actions';
 import { writeIssueNote } from '../core/issue-note';
-import { humanClick, humanGlide, sleep } from '../core/overlays/cursor';
+import { beat, humanClick, humanGlide, sleep } from '../core/overlays/cursor';
 import { type ActionContext, type PageActionHandler, type PageRecordConfig } from '../core/types';
 
 /**
@@ -51,7 +51,7 @@ async function selectTab(ctx: ActionContext, page: Page, key: keyof typeof TABS)
 
   // The two variants are keyed, so the click tears the old chat down and mounts
   // a new one. Give React the frame before anything is typed into it.
-  await sleep(1400);
+  await beat(1400);
 }
 
 /**
@@ -222,7 +222,7 @@ export const runInterruptConditionalAction: PageActionHandler = async (
     );
   }
 
-  await sleep(2500);
+  await beat(2500);
 
   if (config.knownIssue) {
     await writeIssueNote(page, config.id, config.knownIssue);
