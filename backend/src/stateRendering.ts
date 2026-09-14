@@ -64,7 +64,7 @@ const reportResearchProgress = tool(
 //#region glue
 
 export const agent = createDeepAgent({
-  model: "openai:gpt-5.6-luna",
+  model: "openai:gpt-5.4-mini",
   tools: [reportResearchProgress],
   middleware: [
     searchesStateMiddleware,
