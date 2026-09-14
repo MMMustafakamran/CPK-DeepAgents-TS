@@ -15,7 +15,7 @@
  *    this variant uses `Annotation.Root` rather than a Zod schema. Annotations
  *    serialize fine on their own, so nothing is needed — noted only because the
  *    prebuilt variant on the same page does need `zodState`.
- * 2. The page's model id is `gpt-4o-mini`; every agent here reads OPENAI_MODEL.
+ * 2. The page's model id is `gpt-5.6-luna`; every agent here reads OPENAI_MODEL.
  * 3. `MemorySaver` is imported from `@langchain/langgraph` on the page. In
  *    1.4.9 it lives in `@langchain/langgraph-checkpoint`, re-exported from the
  *    root — so the page's import works, and is kept.
