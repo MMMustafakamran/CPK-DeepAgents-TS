@@ -48,11 +48,3 @@ export const FRONTEND_PORT = Number(process.env.FRONTEND_PORT || 3000);
 /** `langgraph dev` answers `/ok` with `{"ok":true}`. It has no `/health`. */
 export const BACKEND_HEALTH_URL = `http://127.0.0.1:${BACKEND_PORT}/ok`;
 export const FRONTEND_URL = `http://127.0.0.1:${FRONTEND_PORT}`;
-  '/',
-  '/quickstart/demo-chat',
-  '/shared-state/predictive-state-updates/demo-chat',
-  '/generative-ui/your-components/interrupt-based/demo-chat',
-  // The take clicks "Toggle Language" and then prompts. A rebuild arriving in
-  // between drops the write, so the take prompts in English and proves nothing.
-  '/shared-state/in-app-agent-write/demo-chat',
-];
